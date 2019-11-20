@@ -15,6 +15,32 @@ const mockUpgrader = {
 };
 const ws = new WS({ upgrader: mockUpgrader });
 
+class WebSocketBundle extends libp2p {
+  constructor(_options) {
+    const defaults = {
+      modules: {
+        transport: [ws],
+        streamMuxer: [Mplex], //Stream multiplexer, we can dial several times to a node and we'll only have one connection with the different
+        connEncryption: [SECIO], //TLS 1.3 "like" crypto channel, hasn't been audited yet, libp2p will
+        dht: KadDHT // This also resolves Peer discovery (routing) via serendipity (Random Walk on the DHT)
+      },
+      config: {
+        dht: {
+          enabled: true,
+          kBucketSize: 20
+        },
+        peerDiscovery: {
+          autoDial: false,
+          webRTCStar: {
+            enabled: false
+          }
+        }
+      }
+    };
+
+    super(defaultsDeep(_options, defaults));
+  }
+}
 class WebRTCBundle extends libp2p {
   constructor(_options) {
     const wrtcStar = new Wstar({ wrtc: wrtc });
@@ -55,4 +81,4 @@ class WebRTCBundle extends libp2p {
     super(defaultsDeep(_options, defaults));
   }
 }
-export = WebRTCBundle
+export = { WebRTCBundle, WebSocketBundle } 
