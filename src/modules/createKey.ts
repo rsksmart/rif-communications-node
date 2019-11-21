@@ -1,60 +1,62 @@
-//Generate the Key for Peers
+// Generate the Key for Peers
 
-import {datastore, generateKey, myArgs} from "./nodesConf";
+import { datastore, myArgs } from './nodesConf'
 
 import { Keychain } from 'libp2p-keychain'
-import { PeerId } from 'peer-id';
-import { error } from "console";
+import { PeerId } from 'peer-id'
+import { error } from 'console'
 
-let keychain : String 
+const generateKey = myArgs.key
+
+let keychain: string
 
 if (myArgs.passphrase != undefined) {
-    keychain = new Keychain(datastore, {
-      passPhrase: myArgs.passphrase
-    });
+  keychain = new Keychain(datastore, {
+    passPhrase: myArgs.passphrase
+  })
+}
+
+function createKey (keyname: string, callback) {
+  if (typeof keyname === 'function') {
+    callback = keyname
+    keyname = undefined
   }
 
-function createKey(keyname : String, callback) {
-    if (typeof keyname === "function") {
-      callback = keyname;
-      keyname = undefined;
-    }
-  
-    if (generateKey) {
-      let opts = undefined;
-  
-      if (myArgs.keytype == "secp256k1") {
-        opts = {
-          bits: 256,
-          keyType: "secp256k1"
-        };
+  if (generateKey) {
+    let opts
+
+    if (myArgs.keytype == 'secp256k1') {
+      opts = {
+        bits: 256,
+        keyType: 'secp256k1'
       }
-  
-      if (keychain != null) {
-        if (myArgs.keytype != "RSA") {
-          throw new error("Only RSA is supported in the keychain at the moment");
+    }
+
+    if (keychain != null) {
+      if (myArgs.keytype != 'RSA') {
+        throw new error('Only RSA is supported in the keychain at the moment')
+      }
+      opts = {
+        bits: 2048,
+        keyType: 'RSA'
+      }
+      PeerId.createWithKeyChain(keychain, keyname, opts, (err, peer) => {
+        if (err) {
+          throw err
         }
-        opts = {
-          bits: 2048,
-          keyType: "RSA"
-        };
-        PeerId.createWithKeyChain(keychain, keyname, opts, (err, peer) => {
-          if (err) {
-            throw err;
-          }
-          callback(null, peer);
-        });
-      } else {
-        PeerId.create(opts, (err, peer) => {
-          if (err) {
-            throw err;
-          }
-          callback(null, peer);
-        });
-      }
+        callback(null, peer)
+      })
     } else {
-      callback(null);
+      PeerId.create(opts, (err, peer) => {
+        if (err) {
+          throw err
+        }
+        callback(null, peer)
+      })
     }
+  } else {
+    callback(null)
   }
-  
-  export = { createKey } 
+}
+
+export { createKey }
