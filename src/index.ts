@@ -20,29 +20,14 @@ const rl = readline.createInterface({
   output: process.stdout
 })
 
+let err: Error
 let pId: string
-
 let partialAddr: string
 
-function processNewChatLine () {
-  let message: string
-  rl.question('.', message => {
-    if (message !== '/exit') {
-      node1.dht.sendMessage(pId, message, partialAddr, err => {
-        if (err) {
-          console.log(err)
-        } else {
-          processNewChatLine()
-        }
-      })
-    }
-  })
-  console.log('here is a message or WHAT!?', message)
-  return message
-}
+
 console.log('gdsgdsg')
 
-function mainProcess () {
+function mainProcess() {
   waterfall([cb => createNode(keyname, cb)], (err, theNode) => {
     const node1 = theNode
 
@@ -70,14 +55,14 @@ function mainProcess () {
       )
 
       if (!bootnode) {
-        let bootNodeMultiaddrs
+        let bootNodeMultiaddrs: any
         parallel(
           [
             cb => node1.dial(multiaddr(bootNodeMultiaddrs), cb),
             // Set up of the cons might take time
             cb => setTimeout(cb, 300)
           ],
-          (err, values) => {
+          (err: Error, values: any) => {
             if (err) {
               throw err
             }
@@ -91,6 +76,24 @@ function mainProcess () {
       }
     })
   })
+}
+
+function processNewChatLine() {
+  let message: string
+  rl.question('.', message => {
+    if (message !== '/exit') {
+      node1.dht.sendMessage((pId, message, partialAddr, err) => {
+        if (err) {
+          console.log(err)
+        } else {
+          processNewChatLine()
+        }
+      })
+    }
+    return message
+  }
+  )
+  console.log('here is a message or WHAT!?', message)
 }
 
 if (autostart) {

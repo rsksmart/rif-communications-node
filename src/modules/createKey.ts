@@ -47,7 +47,7 @@ function createKey (keyname: string, callback) {
         callback(null, peer)
       })
     } else {
-      PeerId.create(opts, (err, peer) => {
+      PeerId.create(opts, (err: Error, peer: libp2pPeer) => {
         if (err) {
           throw err
         }
