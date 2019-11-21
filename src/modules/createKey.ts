@@ -1,62 +1,62 @@
 // Generate the Key for Peers
 
-import { datastore, myArgs } from "./nodesConf";
+import { datastore, myArgs } from './nodesConf'
 
-import { Keychain } from "libp2p-keychain";
-import { PeerId } from "peer-id";
-import { error } from "console";
+import { Keychain } from 'libp2p-keychain'
+import { PeerId } from 'peer-id'
+import { error } from 'console'
 
-const generateKey = myArgs.key;
+const generateKey = myArgs.key
 
-let keychain: string;
+let keychain: string
 
-if (myArgs.passphrase != undefined) {
+if (myArgs.passphrase !== undefined) {
   keychain = new Keychain(datastore, {
     passPhrase: myArgs.passphrase
-  });
+  })
 }
 
-function createKey(keyname: string, callback) {
-  if (typeof keyname === "function") {
-    callback = keyname;
-    keyname = undefined;
+function createKey (keyname: string, callback) {
+  if (typeof keyname === 'function') {
+    callback = keyname
+    keyname = undefined
   }
 
   if (generateKey) {
-    let opts;
+    let opts
 
-    if (myArgs.keytype == "secp256k1") {
+    if (myArgs.keytype === 'secp256k1') {
       opts = {
         bits: 256,
-        keyType: "secp256k1"
-      };
+        keyType: 'secp256k1'
+      }
     }
 
     if (keychain != null) {
-      if (myArgs.keytype != "RSA") {
-        throw new error("Only RSA is supported in the keychain at the moment");
+      if (myArgs.keytype !== 'RSA') {
+        throw new Error('Only RSA is supported in the keychain at the moment')
       }
       opts = {
         bits: 2048,
-        keyType: "RSA"
-      };
+        keyType: 'RSA'
+      }
       PeerId.createWithKeyChain(keychain, keyname, opts, (err, peer) => {
         if (err) {
-          throw err;
+          throw err
         }
-        callback(null, peer);
-      });
+        callback(null, peer)
+      })
     } else {
       PeerId.create(opts, (err, peer) => {
         if (err) {
-          throw err;
+          throw err
         }
-        callback(null, peer);
-      });
+        callback(null, peer)
+      })
     }
   } else {
-    callback(null);
+    callback(null)
   }
 }
 
-export { createKey };
+export { createKey }
