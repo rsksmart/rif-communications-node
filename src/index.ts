@@ -2,12 +2,12 @@
 
 import * as readline from 'readline';
 
+import async from 'async';
 import createNode from './modules/createNode';
 import { cryptoUtil } from 'libp2p-crypto';
 import { multiaddr } from 'multiaddr';
 import { multihashingAsync } from 'multihashing-async';
 import { myArgs } from './modules/nodesConf';
-import async from 'async';
 
 const keyname = myArgs.keyname;
 const bootnode = myArgs.isbootnode;
@@ -25,7 +25,7 @@ var theNode: any;
 function mainProcess() {
   async.waterfall(
     [
-      (cb: any) => {
+      (cb: () => void) => {
         return createNode(keyname, cb);
       }
     ],
@@ -63,9 +63,9 @@ function mainProcess() {
             let bootNodeMultiaddrs: any;
             async.parallel(
               [
-                (cb: any) => node1.dial(multiaddr(bootNodeMultiaddrs), cb),
+                (cb: () => void) => node1.dial(multiaddr(bootNodeMultiaddrs), cb),
                 // Set up of the cons might take time
-                (cb: any) => setTimeout(cb, 300)
+                (cb: () => void) => setTimeout(cb, 300)
               ],
               (err: Error | null| undefined, values: any) => {
                 if (err) {
@@ -107,8 +107,7 @@ function processNewChatLine() {
   });
 }
 
-if (autostart) {
-  mainProcess();
-}
 
-processNewChatLine();
+mainProcess();
+
+//processNewChatLine();

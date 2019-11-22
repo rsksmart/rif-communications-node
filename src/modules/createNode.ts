@@ -6,7 +6,7 @@ import { PeerInfo } from 'peer-info'
 import { createKey } from './createKey'
 import { multiaddr } from 'multiaddr'
 import { myArgs } from './nodesConf'
-import {waterfall} from 'async'
+import { waterfall } from 'async'
 
 const generateKey = myArgs.key
 
