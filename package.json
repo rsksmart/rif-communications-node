@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@nodeutils/defaults-deep": "^1.1.0",
-    "@types/async": "^3.0.3",
+    "async": "^3.1.0",
     "chalk": "^3.0.0",
     "cids": "^0.7.1",
     "console-table-printer": "^1.1.10",
@@ -69,6 +69,7 @@
     "@types/chai-as-promised": "^7.1.2",
     "@types/dirty-chai": "^2.0.2",
     "@types/mocha": "^5.2.7",
+    "@types/async": "^3.0.3",
     "@types/yargs": "^13.0.3",
     "@typescript-eslint/eslint-plugin": "^2.8.0",
     "@typescript-eslint/parser": "^2.8.0",

@@ -1,3 +1,5 @@
 declare module 'datastore-fs' {
-    export let FsStore: any
+    export default class FsStore {
+      constructor(path: string)
+    }
 }

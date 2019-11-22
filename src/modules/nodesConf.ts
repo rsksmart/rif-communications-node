@@ -2,7 +2,7 @@
 
 import * as yargs from 'yargs'
 
-import { FsStore } from 'datastore-fs'
+import FsStore from 'datastore-fs'
 import createNode from './createNode'
 
 const datastore = new FsStore('./node-keysotre')

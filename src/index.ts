@@ -7,8 +7,7 @@ import { cryptoUtil } from 'libp2p-crypto';
 import { multiaddr } from 'multiaddr';
 import { multihashingAsync } from 'multihashing-async';
 import { myArgs } from './modules/nodesConf';
-import { parallel } from 'async/parallel';
-import { waterfall } from 'async/waterfall';
+import async from 'async';
 
 const keyname = myArgs.keyname;
 const bootnode = myArgs.isbootnode;
@@ -18,21 +17,19 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-console.log("hello")
-
 let err: Error;
 let pId: string;
 let partialAddr: string;
 var theNode: any;
 
 function mainProcess() {
-  waterfall(
+  async.waterfall(
     [
       (cb: any) => {
         return createNode(keyname, cb);
       }
     ],
-    (err: Error, theNode: any) => {
+    (err: Error | null| undefined, theNode: any) => {
       const node1 = theNode;
       console.log('---- YOUR NODE INFORMATION ----');
       console.log('ID: %s', node1.peerInfo.id._idB58String);
@@ -64,13 +61,13 @@ function mainProcess() {
 
           if (!bootnode) {
             let bootNodeMultiaddrs: any;
-            parallel(
+            async.parallel(
               [
                 (cb: any) => node1.dial(multiaddr(bootNodeMultiaddrs), cb),
                 // Set up of the cons might take time
                 (cb: any) => setTimeout(cb, 300)
               ],
-              (err: Error, values: any) => {
+              (err: Error | null| undefined, values: any) => {
                 if (err) {
                   throw err;
                 }

@@ -6,7 +6,7 @@ import { SECIO } from 'libp2p-secio'
 import WS from 'libp2p-websockets'
 import { Wstar } from 'libp2p-webrtc-star'
 // import { defaultsDeep } from '@nodeutils/defaults-deep'
-import { libp2p } from 'libp2p'
+import libp2p from 'libp2p'
 import { wrtc } from 'wrtc'
 
 const upgrader = {

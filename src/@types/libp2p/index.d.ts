@@ -1,3 +1,5 @@
 declare module 'libp2p' {
-    export let libp2p: any
+    export default class libp2p{
+      constructor(_options: any)
+    }
 }

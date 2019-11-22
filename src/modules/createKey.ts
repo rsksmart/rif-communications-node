@@ -5,6 +5,8 @@ import { datastore, myArgs } from './nodesConf'
 import { Keychain } from 'libp2p-keychain'
 import { PeerId } from 'peer-id'
 
+import * as types from '../types';
+
 const generateKey = myArgs.key
 
 let keychain: any
@@ -39,14 +41,14 @@ function createKey (keyname: any, callback: any) {
         bits: 2048,
         keyType: 'RSA'
       }
-      PeerId.createWithKeyChain(keychain, keyname, opts, (err: Error, peer: libp2pPeer) => {
+      PeerId.createWithKeyChain(keychain, keyname, opts, (err: Error, peer: types.libp2pPeer) => {
         if (err) {
           throw err
         }
         callback(null, peer)
       })
     } else {
-      PeerId.create(opts, (err: Error, peer: libp2pPeer) => {
+      PeerId.create(opts, (err: Error, peer: types.libp2pPeer) => {
         if (err) {
           throw err
         }
