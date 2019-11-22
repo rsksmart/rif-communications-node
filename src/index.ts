@@ -1,4 +1,5 @@
 // Main process
+import "types.d.ts"
 
 import * as readline from 'readline';
 

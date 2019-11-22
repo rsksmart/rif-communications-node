@@ -1,13 +1,6 @@
-declare module 'libp2p-keychain' {
-  export let Keychain: any
-}
 
 declare module 'peer-id' {
   export let PeerId: any
-}
-
-declare module 'libp2p-crypto' {
-  export let cryptoUtil: any
 }
 
 declare module 'multiaddr' {
@@ -67,5 +60,5 @@ declare module 'theNode' {
 }
 
 interface libp2pPeer {
-  
+
 }

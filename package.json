@@ -34,7 +34,7 @@
     "test": "tasegir test",
     "test:node": "tasegir test --target node",
     "test:browser": "tasegir test --target browser",
-    "start": "tasegir ./src/index.ts"
+    "start": "tasegir run ./src/index.ts"
   },
   "dependencies": {
     "@nodeutils/defaults-deep": "^1.1.0",
