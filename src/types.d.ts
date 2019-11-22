@@ -54,8 +54,16 @@ declare module 'libp2p' {
   export let libp2p: any
 }
 
+declare module 'peer-info' {
+  export let PeerInfo: any
+}
+
 declare module 'wrtc' {
   export let wrtc: any
+}
+
+declare module 'theNode' {
+  export let theNode: any
 }
 
 interface libp2pPeer {

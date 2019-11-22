@@ -10,8 +10,8 @@ import { waterfall } from 'async/waterfall'
 
 const generateKey = myArgs.key
 
-function createNode (keyname, callback) {
-  let node
+function createNode(keyname: any, callback: (arg0: null, arg1: any) => void) {
+  let node: any
 
   if (typeof keyname === 'function') {
     callback = keyname
@@ -20,15 +20,15 @@ function createNode (keyname, callback) {
 
   waterfall(
     [
-      cb => {
+      (cb: (arg0: null, arg1: null) => void) => {
         if (generateKey) createKey(keyname, cb)
         else cb(null, null)
       },
-      (peerId, cb) => {
+      (peerId: any, cb: any) => {
         if (generateKey) PeerInfo.create(peerId, cb)
         else PeerInfo.create(cb)
       },
-      (peerInfo, cb) => {
+      (peerInfo: any, cb: any) => {
         if (myArgs.webrtc) {
           console.log('USING WEB RTC')
           peerInfo.multiaddrs.add(
@@ -57,31 +57,31 @@ function createNode (keyname, callback) {
             peerInfo
           })
 
-          node.on('peer', peerInfo => {
+          node.on('peer', (peerInfo: any) => {
             console.log('Recibi algo ')
             console.log(peerInfo)
           })
 
-          node.on('peer:discovery', peerInfo => {
+          node.on('peer:discovery', (peerInfo: any) => {
             console.log(
               'Discovered a peer from here: ',
               peerInfo.id.toB58String()
             )
           })
 
-          node.on('peer:connect', peerInfo => {
+          node.on('peer:connect', (peerInfo: any) => {
             const idStr = peerInfo.id.toB58String()
             console.log('Got connection to: ' + idStr)
           })
 
-          node.on('peer:disconnect', peerInfo => {
+          node.on('peer:disconnect', (peerInfo: any) => {
             const idStr = peerInfo.id.toB58String()
             console.log('Got discconected from %s ', idStr)
           })
 
           node.dht.registerListener(
             'kad-msg-received',
-            kadMsg => {
+            (kadMsg: string) => {
               console.log('[Contact] -> ' + kadMsg)
             },
             () => {
@@ -91,7 +91,7 @@ function createNode (keyname, callback) {
         }
       }
     ],
-    err => {
+    (err: any) => {
       callback(null, node)
     }
   )
