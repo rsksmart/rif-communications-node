@@ -20,15 +20,9 @@ const myArgs = yargs
   })
   .default('keyname', 'defaultkeyname')
   .default('keytype', 'secp256k1')
-  .option('autostart', {
-    type: 'boolean',
-    default: false,
-    description: 'Automatically start'
-  })
-  .option('isbootnode', {
-    type: 'boolean',
-    default: false,
-    description: 'Run as bootnode'
+  .option('bootNodeAddr', {
+    type: 'string',
+    description: 'Address of a bootnode to connect to'
   })
   .default('key', true)
   .default('automated', false)
