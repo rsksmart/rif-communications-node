@@ -36,7 +36,9 @@ declare module 'libp2p-secio' {
 }
 
 declare module 'libp2p-websockets' {
-  export let WS: any
+  export default class WS {
+    constructor(_options:any)
+  }
 }
 
 declare module 'libp2p-webrtc-star' {
