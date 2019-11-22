@@ -2,9 +2,9 @@
 
 import { WebRTCBundle, WebSocketBundle } from './wRTCbundle'
 
-import { PeerInfo } from 'peer-info'
+import { create } from 'peer-info'
 import { createKey } from './createKey'
-import { multiaddr } from 'multiaddr'
+import Multiaddr from 'multiaddr'
 import { myArgs } from './nodesConf'
 import { waterfall } from 'async'
 
@@ -25,14 +25,14 @@ export default function createNode(keyname: any, callback: (arg0: null, arg1: an
         else cb(null, null)
       },
       (peerId: any, cb: any) => {
-        if (generateKey) PeerInfo.create(peerId, cb)
-        else PeerInfo.create(cb)
+        if (generateKey) create(peerId, cb)
+        else create(cb)
       },
       (peerInfo: any, cb: any) => {
         if (myArgs.webrtc) {
           console.log('USING WEB RTC')
           peerInfo.multiaddrs.add(
-            multiaddr(
+            new Multiaddr(
               '/ip4/' +
               myArgs.host +
               '/tcp/' +
@@ -49,7 +49,7 @@ export default function createNode(keyname: any, callback: (arg0: null, arg1: an
         } else {
           console.log('USING ONLY SOCKET')
           peerInfo.multiaddrs.add(
-            multiaddr(
+            new Multiaddr(
               '/ip4/' + myArgs.host + '/tcp/' + myArgs.socketport + '/ws'
             )
           )

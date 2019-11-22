@@ -2,15 +2,14 @@
 
 import * as readline from 'readline';
 
-import async from 'async';
+import * as async from 'async';
 import createNode from './modules/createNode';
-import { cryptoUtil } from 'libp2p-crypto';
-import { multiaddr } from 'multiaddr';
-import { multihashingAsync } from 'multihashing-async';
+import cryptoUtil from 'libp2p-crypto';
+import Multiaddr from 'multiaddr';
+import multihashingAsync from 'multihashing-async';
 import { myArgs } from './modules/nodesConf';
 
 const keyname = myArgs.keyname;
-const bootnode = myArgs.isbootnode;
 const autostart = myArgs.autostart;
 const rl = readline.createInterface({
   input: process.stdin,
@@ -59,28 +58,26 @@ function mainProcess() {
               .toString('base64')
           );
 
-          if (!bootnode) {
-            let bootNodeMultiaddrs: any;
-            async.parallel(
-              [
-                (cb: () => void) => node1.dial(multiaddr(bootNodeMultiaddrs), cb),
-                // Set up of the cons might take time
-                (cb: () => void) => setTimeout(cb, 300)
-              ],
-              (err: Error | null| undefined, values: any) => {
-                if (err) {
-                  throw err;
-                }
-
-                node1.on(
-                  'peer:discovery',
-                  (peer: { id: { toB58String: () => void } }) =>
-                    console.log('Discovered:', peer.id.toB58String())
-                );
-                console.log('Connection Successful');
+          let bootNodeMultiaddrs: any;
+          async.parallel(
+            [
+              (cb: () => void) => node1.dial(new Multiaddr(bootNodeMultiaddrs), cb),
+              // Set up of the cons might take time
+              (cb: () => void) => setTimeout(cb, 300)
+            ],
+            (err: Error | null| undefined, values: any) => {
+              if (err) {
+                throw err;
               }
-            );
-          }
+
+              node1.on(
+                'peer:discovery',
+                (peer: { id: { toB58String: () => void } }) =>
+                  console.log('Discovered:', peer.id.toB58String())
+              );
+              console.log('Connection Successful');
+            }
+          );
         }
       );
     }

@@ -1,3 +1,5 @@
 declare module 'multiaddr' {
-    export let multiaddr: any
+    export default class Multiaddr{
+      constructor(addr?: Multiaddr | null | string | Buffer)
+    }
 }

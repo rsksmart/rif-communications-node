@@ -1,13 +1,13 @@
 // WebRTC Bundle
 
-import { KadDHT } from 'libp2p-kad-dht'
-import { Mplex } from 'libp2p-mplex'
-import { SECIO } from 'libp2p-secio'
+import KadDHT from 'libp2p-kad-dht'
+import Mplex from 'libp2p-mplex'
+import SECIO from 'libp2p-secio'
 import WS from 'libp2p-websockets'
-import { Wstar } from 'libp2p-webrtc-star'
+import Wstar from 'libp2p-webrtc-star'
 // import { defaultsDeep } from '@nodeutils/defaults-deep'
 import libp2p from 'libp2p'
-import { wrtc } from 'wrtc'
+import wrtc from 'wrtc'
 
 const upgrader = {
   upgradeInbound: (maConn: ()=>{}) => maConn,

@@ -1,3 +1,5 @@
 declare module 'libp2p-webrtc-star' {
-    export let Wstar: any
+    export default class Wstar{
+      constructor(options: any)
+    }
 }
