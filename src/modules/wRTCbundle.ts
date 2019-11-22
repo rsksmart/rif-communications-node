@@ -5,18 +5,18 @@ import { Mplex } from 'libp2p-mplex'
 import { SECIO } from 'libp2p-secio'
 import { WS } from 'libp2p-websockets'
 import { Wstar } from 'libp2p-webrtc-star'
-import { defaultsDeep } from '@nodeutils/defaults-deep'
+// import { defaultsDeep } from '@nodeutils/defaults-deep'
 import { libp2p } from 'libp2p'
 import { wrtc } from 'wrtc'
 
 const mockUpgrader = {
-  upgradeInbound: maConn => maConn,
-  upgradeOutbound: maConn => maConn
+  upgradeInbound: (maConn: ()=>{}) => maConn,
+  upgradeOutbound: (maConn: ()=>{}) => maConn
 }
 const ws = new WS({ upgrader: mockUpgrader })
 
 class WebSocketBundle extends libp2p {
-  constructor (_options) {
+  constructor (_options: any) {
     const defaults = {
       modules: {
         transport: [ws],
@@ -38,11 +38,11 @@ class WebSocketBundle extends libp2p {
       }
     }
 
-    super(defaultsDeep(_options, defaults))
+    super({..._options, ...defaults})
   }
 }
 class WebRTCBundle extends libp2p {
-  constructor (_options) {
+  constructor (_options: any) {
     const wrtcStar = new Wstar({ wrtc: wrtc })
 
     const defaults = {
@@ -78,7 +78,7 @@ class WebRTCBundle extends libp2p {
       }
     }
 
-    super(defaultsDeep(_options, defaults))
+    super({..._options, ...defaults})
   }
 }
 export { WebRTCBundle, WebSocketBundle }

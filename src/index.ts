@@ -2,15 +2,13 @@
 
 import * as readline from 'readline';
 
-import { createNode } from './modules/createNode';
+import createNode from './modules/createNode';
 import { cryptoUtil } from 'libp2p-crypto';
 import { multiaddr } from 'multiaddr';
 import { multihashingAsync } from 'multihashing-async';
 import { myArgs } from './modules/nodesConf';
 import { parallel } from 'async/parallel';
 import { waterfall } from 'async/waterfall';
-
-console.log(myArgs);
 
 const keyname = myArgs.keyname;
 const bootnode = myArgs.isbootnode;
@@ -20,12 +18,12 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
+console.log("hello")
+
 let err: Error;
 let pId: string;
 let partialAddr: string;
 var theNode: any;
-
-console.log('gdsgdsg');
 
 function mainProcess() {
   waterfall(

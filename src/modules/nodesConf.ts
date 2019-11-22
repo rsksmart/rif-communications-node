@@ -3,12 +3,15 @@
 import * as yargs from 'yargs'
 
 import { FsStore } from 'datastore-fs'
-import { createNode } from './createNode'
+import createNode from './createNode'
 
 const datastore = new FsStore('./node-keysotre')
 
 const myArgs = yargs
-  .default('socketport', '0')
+  .option('socketport', {
+    type: 'number',
+    default: 0
+  })
   .default('host', '127.0.0.1')
   .default('port', '9090')
   .option('webrtc', {
@@ -37,6 +40,6 @@ const myArgs = yargs
 
 const generateKey = myArgs.key
 
-exports.createPeer = (keyname, callback) => createNode(keyname, callback)
+exports.createPeer = (keyname: string, callback: () => void) => createNode(keyname, callback)
 
 export { myArgs, generateKey, datastore }

@@ -10,7 +10,7 @@ import { waterfall } from 'async/waterfall'
 
 const generateKey = myArgs.key
 
-function createNode(keyname: any, callback: (arg0: null, arg1: any) => void) {
+export default function createNode(keyname: any, callback: (arg0: null, arg1: any) => void) {
   let node: any
 
   if (typeof keyname === 'function') {
@@ -96,5 +96,3 @@ function createNode(keyname: any, callback: (arg0: null, arg1: any) => void) {
     }
   )
 }
-
-export { createNode }
