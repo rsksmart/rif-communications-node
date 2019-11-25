@@ -5,7 +5,7 @@ import * as yargs from 'yargs'
 import FsStore from 'datastore-fs'
 import createNode from './createNode'
 
-const datastore = new FsStore('./node-keysotre')
+const datastore = new FsStore('./node-keystore')
 
 const myArgs = yargs
   .option('socketport', {
@@ -34,6 +34,7 @@ const myArgs = yargs
 
 const generateKey = myArgs.key
 
-exports.createPeer = (keyname: string, callback: () => void) => createNode(keyname, callback)
+exports.createPeer = (keyname: string, callback: () => void) =>
+  createNode(keyname, callback)
 
 export { myArgs, generateKey, datastore }

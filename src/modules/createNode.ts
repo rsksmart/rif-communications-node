@@ -10,7 +10,10 @@ import { waterfall } from 'async'
 
 const generateKey = myArgs.key
 
-export default function createNode(keyname: any, callback: (arg0: null, arg1: any) => void) {
+export default function createNode (
+  keyname: any,
+  callback: (arg0: null, arg1: any) => void
+) {
   let node: any
 
   if (typeof keyname === 'function') {
@@ -34,11 +37,11 @@ export default function createNode(keyname: any, callback: (arg0: null, arg1: an
           peerInfo.multiaddrs.add(
             new Multiaddr(
               '/ip4/' +
-              myArgs.host +
-              '/tcp/' +
-              myArgs.port +
-              '/ws/p2p-webrtc-star/ipfs/' +
-              peerInfo.id.toB58String()
+                myArgs.host +
+                '/tcp/' +
+                myArgs.port +
+                '/ws/p2p-webrtc-star/ipfs/' +
+                peerInfo.id.toB58String()
             )
           )
           node = new WebRTCBundle({

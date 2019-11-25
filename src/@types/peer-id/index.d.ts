@@ -8,6 +8,6 @@ declare module 'peer-id' {
     )
   }
   class PeerIdWithIs extends PeerId {}
-  export const createWithKeyChain: (keychain: any, keyname: any, opts: any, callback: (err: Error, peer: PeerId) => void) => void;
-  export const create: (_options: any, callback: (err: Error, peer: PeerId, callback: ()=>void) => void) => void;
+  export const createWithKeyChain: (keychain: any, keyname: any, opts: any, callback: (err: Error, peer: PeerId) => void) => void
+  export const create: (_options: any, callback: (err: Error, peer: PeerId, callback: () => void) => void) => void
 }

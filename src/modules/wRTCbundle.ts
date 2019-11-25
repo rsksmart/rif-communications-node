@@ -7,13 +7,13 @@ import WS from 'libp2p-websockets'
 import Wstar from 'libp2p-webrtc-star'
 // import { defaultsDeep } from '@nodeutils/defaults-deep'
 import libp2p from 'libp2p'
-import wrtc from 'wrtc'
+import wrtc from "wrtc"
 
 const upgrader = {
-  upgradeInbound: (maConn: ()=>{}) => maConn,
-  upgradeOutbound: (maConn: ()=>{}) => maConn
+  upgradeInbound: (maConn: () => {}) => maConn,
+  upgradeOutbound: (maConn: () => {}) => maConn
 }
-const ws = new WS({ upgrader})
+const ws = new WS({ upgrader })
 
 class WebSocketBundle extends libp2p {
   constructor (_options: any) {
@@ -38,7 +38,7 @@ class WebSocketBundle extends libp2p {
       }
     }
 
-    super({..._options, ...defaults})
+    super({ ..._options, ...defaults })
   }
 }
 class WebRTCBundle extends libp2p {
@@ -78,7 +78,7 @@ class WebRTCBundle extends libp2p {
       }
     }
 
-    super({..._options, ...defaults})
+    super({ ..._options, ...defaults })
   }
 }
 export { WebRTCBundle, WebSocketBundle }

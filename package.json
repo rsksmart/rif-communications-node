@@ -76,7 +76,6 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "dirty-chai": "^2.0.1",
-    "eslint": "^6.6.0",
     "sinon": "^7.5.0",
     "tasegir": "^1.1.4"
   },
@@ -85,6 +84,8 @@
     "npm": ">=6.0.0"
   },
   "contributors": [
-    "Adam Uhlíř <adam@uhlir.dev>"
+    "Adam Uhlíř <adam@uhlir.dev>",
+    "Vojtech Simetka <vojtech@simetka.cz>",
+    "Matias Mortara <mmortara@infuy.com>"
   ]
 }
