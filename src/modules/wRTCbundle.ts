@@ -1,22 +1,22 @@
 // WebRTC Bundle
 
-import KadDHT from 'libp2p-kad-dht'
-import Mplex from 'libp2p-mplex'
-import SECIO from 'libp2p-secio'
-import WS from 'libp2p-websockets'
-import Wstar from 'libp2p-webrtc-star'
+import KadDHT from "libp2p-kad-dht";
+import Mplex from "libp2p-mplex";
+import SECIO from "libp2p-secio";
+import WS from "libp2p-websockets";
+import Wstar from "libp2p-webrtc-star";
 // import { defaultsDeep } from '@nodeutils/defaults-deep'
-import libp2p from 'libp2p'
-import wrtc from 'wrtc'
+import libp2p from "libp2p";
+import wrtc from "wrtc";
 
 const upgrader = {
   upgradeInbound: (maConn: () => {}) => maConn,
   upgradeOutbound: (maConn: () => {}) => maConn
-}
-const ws = new WS({ upgrader })
+};
+const ws = new WS({ upgrader });
 
 class WebSocketBundle extends libp2p {
-  constructor (_options: any) {
+  constructor(_options: any) {
     const defaults = {
       modules: {
         transport: [ws],
@@ -36,14 +36,15 @@ class WebSocketBundle extends libp2p {
           }
         }
       }
-    }
+    };
 
-    super({ ..._options, ...defaults })
+    super({ ..._options, ...defaults });
   }
 }
+
 class WebRTCBundle extends libp2p {
-  constructor (_options: any) {
-    const wrtcStar = new Wstar({ wrtc: wrtc })
+  constructor(_options: any) {
+    const wrtcStar = new Wstar({ wrtc: wrtc });
 
     const defaults = {
       modules: {
@@ -76,9 +77,9 @@ class WebRTCBundle extends libp2p {
         // If you want to use automatic bootnode connection, then add the code in
         // https://github.com/libp2p/js-libp2p/tree/master/examples/discovery-mechanisms
       }
-    }
+    };
 
-    super({ ..._options, ...defaults })
+    super({ ..._options, ...defaults });
   }
 }
-export { WebRTCBundle, WebSocketBundle }
+export { WebRTCBundle, WebSocketBundle };

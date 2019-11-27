@@ -47,6 +47,7 @@
     "js-libp2p-crypto": "^0.2.0",
     "k-bucket": "rootstock/k-bucket#stable",
     "keccak256": "^1.0.0",
+    "eccrypto": "rootstock/eccrypto#master",
     "libp2p": "rootstock/js-libp2p#stable",
     "libp2p-crypto-secp256k1": "^0.4.0",
     "libp2p-kad-dht": "rootstock/js-libp2p-kad-dht#stable",
