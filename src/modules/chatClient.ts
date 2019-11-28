@@ -1,6 +1,6 @@
 import { createInterface } from "readline";
-import { PeerIdWithIs, PeerId } from "peer-id";
-import libp2p from "libp2p";
+import { PeerIdWithIs, PeerId, createFromPubKey } from "peer-id";
+import Libp2p from "libp2p";
 import { myArgs } from "./nodesConf";
 
 const enter_pub_key_str: string = "Enter the contact's public key";
@@ -13,14 +13,14 @@ const unknown_contact: string = "The selected user is not a known contact";
 export class CommandLineChat {
   activeContacts: Map<string, PeerId>;
   activeChats: Map<any, any>;
-  clientNode: libp2p;
+  clientNode: Libp2p;
 
   rl = createInterface({
     input: process.stdin,
     output: process.stdout
   });
 
-  constructor(node: libp2p) {
+  constructor(node: Libp2p) {
     this.activeContacts = new Map();
     this.activeChats = new Map();
     this.clientNode = node;
@@ -35,11 +35,11 @@ export class CommandLineChat {
 
   addContact(callback: (arg0: null, arg1: any) => void) {
     this.rl.question(enter_pub_key_str, publicKey => {
-      PeerIdWithIs.createFromPubKey(publicKey, (err: Error, pId: PeerId) => {
+      createFromPubKey(publicKey, (err: Error, pId: PeerId) => {
         if (err == undefined) {
-          this.activeContacts.set(pId._idB58String, pId);
+          this.activeContacts.set(pId.toB58String(), pId);
         }
-        callback(null, pId._idB58String);
+        callback(null, pId.toB58String());
       });
     });
   }
@@ -49,7 +49,7 @@ export class CommandLineChat {
       console.warn(unknown_contact);
       return;
     }
-    const pId: PeerId = this.activeContacts.get(contact);
+    const pId: PeerId | undefined = this.activeContacts.get(contact);
 
     const msgNonce: number = this.activeChats.has(contact)
       ? this.activeChats.get(contact)

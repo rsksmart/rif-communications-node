@@ -23,7 +23,7 @@ declare module 'multihash' {
     /**
      * Decode a hash from the given multihash.
      */
-     decode: (buf: Buffer) => {code: number, name: string, length: number, digest: Buffer}
+    decode: (buf: Buffer) => {code: number, name: string, length: number, digest: Buffer}
 
     /**
      *  Encode a hash digest along with the specified function code.
