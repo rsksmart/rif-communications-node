@@ -26,7 +26,6 @@ dist
 
 # Dependency directory
 node_modules
-package-lock.json
 
 # Editor preferences
 .vscode
