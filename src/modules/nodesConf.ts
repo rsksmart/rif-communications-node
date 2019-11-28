@@ -12,6 +12,7 @@ const myArgs = yargs
     type: "number",
     default: 0
   })
+  .default("chatClient", false)
   .default("host", "127.0.0.1")
   .default("port", "9090")
   .option("webrtc", {

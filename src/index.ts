@@ -58,8 +58,10 @@ function mainProcess() {
                   throw err;
                 }
                 console.log("Connection Successful");
-                let chatClient: CommandLineChat = new CommandLineChat(node);
-                chatClient.init();
+                if (myArgs.chatClient) {
+                  let chatClient: CommandLineChat = new CommandLineChat(node);
+                  chatClient.init();
+                }
               }
             );
           }
