@@ -3,12 +3,314 @@
 import { WebRTCBundle, WebSocketBundle } from "./wRTCbundle";
 
 import { create } from "peer-info";
+import { createFromPubKey, createFromJSON, PeerId } from "peer-id";
 import { createKey } from "./createKey";
 import Multiaddr from "multiaddr";
 import { myArgs } from "./nodesConf";
 import { waterfall } from "async";
 
 const generateKey = myArgs.key;
+
+export function createNodeFromPublicKey(
+  publicKey: Buffer,
+  callback: (arg0: null, arg1: any) => void
+) {
+  let node: any;
+
+  waterfall(
+    [
+      (cb: (arg0: null, arg1: null) => void) => {
+        createFromPubKey(publicKey, cb);
+      },
+      (peerId: any, cb: any) => {
+        create(peerId, cb);
+      },
+      (peerInfo: any, cb: any) => {
+        if (myArgs.webrtc) {
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" +
+                myArgs.host +
+                "/tcp/" +
+                myArgs.port +
+                "/ws/p2p-webrtc-star/ipfs/" +
+                peerInfo.id.toB58String()
+            )
+          );
+          node = new WebRTCBundle({
+            peerInfo
+          });
+          console.log(peerInfo);
+          node.start(cb);
+        } else {
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" + myArgs.host + "/tcp/" + myArgs.socketport + "/ws"
+            )
+          );
+          node = new WebSocketBundle({
+            peerInfo
+          });
+
+          node.on("peer", (peerInfo: any) => {
+            console.log("Recibi algo ");
+            console.log(peerInfo);
+          });
+
+          node.on("peer:discovery", (peerInfo: any) => {
+            console.log(
+              "Discovered a peer from here: ",
+              peerInfo.id.toB58String()
+            );
+          });
+
+          node.on("peer:connect", (peerInfo: any) => {
+            const idStr = peerInfo.id.toB58String();
+            console.log("Got connection to: " + idStr);
+          });
+
+          node.on("peer:disconnect", (peerInfo: any) => {
+            const idStr = peerInfo.id.toB58String();
+            console.log("Got discconected from %s ", idStr);
+          });
+
+          node.dht.registerListener(
+            "kad-msg-received",
+            (kadMsg: string) => {
+              console.log("[Contact] -> " + kadMsg);
+            },
+            () => {
+              node.start(cb);
+            }
+          );
+        }
+      }
+    ],
+    (err: any) => {
+      callback(null, node);
+    }
+  );
+}
+
+function _createNode(peerInfo: any, cb: any) {
+  let node: any;
+
+  if (myArgs.webrtc) {
+    peerInfo.multiaddrs.add(
+      new Multiaddr(
+        "/ip4/" +
+          myArgs.host +
+          "/tcp/" +
+          myArgs.port +
+          "/ws/p2p-webrtc-star/ipfs/" +
+          peerInfo.id.toB58String()
+      )
+    );
+    node = new WebRTCBundle({
+      peerInfo
+    });
+    console.log(peerInfo);
+    node.start(cb);
+  } else {
+    peerInfo.multiaddrs.add(
+      new Multiaddr("/ip4/" + myArgs.host + "/tcp/" + myArgs.socketport + "/ws")
+    );
+    node = new WebSocketBundle({
+      peerInfo
+    });
+
+    node.on("peer", (peerInfo: any) => {
+      console.log("Recibi algo ");
+      console.log(peerInfo);
+    });
+
+    node.on("peer:discovery", (peerInfo: any) => {
+      console.log("Discovered a peer from here: ", peerInfo.id.toB58String());
+    });
+
+    node.on("peer:connect", (peerInfo: any) => {
+      const idStr = peerInfo.id.toB58String();
+      console.log("Got connection to: " + idStr);
+    });
+
+    node.on("peer:disconnect", (peerInfo: any) => {
+      const idStr = peerInfo.id.toB58String();
+      console.log("Got discconected from %s ", idStr);
+    });
+
+    node.dht.registerListener(
+      "kad-msg-received",
+      (kadMsg: string) => {
+        console.log("[Contact] -> " + kadMsg);
+      },
+      () => {
+        node.start(cb);
+      }
+    );
+  }
+}
+
+export function createWebNodeFromJSON(
+  nodeJSONObj: Object,
+  callback: (arg0: Error, arg1: PeerId) => void
+) {
+  let node: any;
+
+  waterfall(
+    [
+      (cb: (arg0: null, arg1: null) => void) => {
+        createFromJSON(nodeJSONObj, cb);
+      },
+      (peerId: any, cb: any) => {
+        create(peerId, cb);
+      },
+      (peerInfo: any, cb: any) => {
+        if (myArgs.webrtc) {
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" +
+                myArgs.host +
+                "/tcp/" +
+                myArgs.port +
+                "/ws/p2p-webrtc-star/ipfs/" +
+                peerInfo.id.toB58String()
+            )
+          );
+          node = new WebRTCBundle({
+            peerInfo
+          });
+          console.log(peerInfo);
+          node.start(cb);
+        } else {
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" + myArgs.host + "/tcp/" + myArgs.socketport + "/ws"
+            )
+          );
+          node = new WebSocketBundle({
+            peerInfo
+          });
+
+          node.on("peer", (peerInfo: any) => {
+            console.log("Recibi algo ");
+            console.log(peerInfo);
+          });
+
+          node.on("peer:discovery", (peerInfo: any) => {
+            console.log(
+              "Discovered a peer from here: ",
+              peerInfo.id.toB58String()
+            );
+          });
+
+          node.on("peer:connect", (peerInfo: any) => {
+            const idStr = peerInfo.id.toB58String();
+            console.log("Got connection to: " + idStr);
+          });
+
+          node.on("peer:disconnect", (peerInfo: any) => {
+            const idStr = peerInfo.id.toB58String();
+            console.log("Got discconected from %s ", idStr);
+          });
+
+          node.dht.registerListener(
+            "kad-msg-received",
+            (kadMsg: string) => {
+              console.log("[Contact] -> " + kadMsg);
+            },
+            () => {
+              node.start(cb);
+            }
+          );
+        }
+      }
+    ],
+    (err: any) => {
+      callback(null, node);
+    }
+  );
+}
+
+export function createNodeFromJSON(
+  nodeJSONObj: Object,
+  callback: (arg0: null, arg1: any) => void
+) {
+  let node: any;
+
+  waterfall(
+    [
+      (cb: (arg0: null, arg1: null) => void) => {
+        createFromJSON(nodeJSONObj, cb);
+      },
+      (peerId: any, cb: any) => {
+        create(peerId, cb);
+      },
+      (peerInfo: any, cb: any) => {
+        if (myArgs.webrtc) {
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" +
+                myArgs.host +
+                "/tcp/" +
+                myArgs.port +
+                "/ws/p2p-webrtc-star/ipfs/" +
+                peerInfo.id.toB58String()
+            )
+          );
+          node = new WebRTCBundle({
+            peerInfo
+          });
+          console.log(peerInfo);
+          node.start(cb);
+        } else {
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" + myArgs.host + "/tcp/" + myArgs.socketport + "/ws"
+            )
+          );
+          node = new WebSocketBundle({
+            peerInfo
+          });
+
+          node.on("peer", (peerInfo: any) => {
+            console.log("Recibi algo ");
+            console.log(peerInfo);
+          });
+
+          node.on("peer:discovery", (peerInfo: any) => {
+            console.log(
+              "Discovered a peer from here: ",
+              peerInfo.id.toB58String()
+            );
+          });
+
+          node.on("peer:connect", (peerInfo: any) => {
+            const idStr = peerInfo.id.toB58String();
+            console.log("Got connection to: " + idStr);
+          });
+
+          node.on("peer:disconnect", (peerInfo: any) => {
+            const idStr = peerInfo.id.toB58String();
+            console.log("Got discconected from %s ", idStr);
+          });
+
+          node.dht.registerListener(
+            "kad-msg-received",
+            (kadMsg: string) => {
+              console.log("[Contact] -> " + kadMsg);
+            },
+            () => {
+              node.start(cb);
+            }
+          );
+        }
+      }
+    ],
+    (err: any) => {
+      callback(null, node);
+    }
+  );
+}
 
 export default function createNode(
   keyname: any,
