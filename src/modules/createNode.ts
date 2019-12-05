@@ -19,7 +19,7 @@ export function createNodeFromPublicKey(
 
   waterfall(
     [
-      (cb: (arg0: null, arg1: null) => void) => {
+      (cb: (arg0: Error, arg1: PeerId) => void) => {
         createFromPubKey(publicKey, cb);
       },
       (peerId: any, cb: any) => {
@@ -152,13 +152,13 @@ function _createNode(peerInfo: any, cb: any) {
 
 export function createWebNodeFromJSON(
   nodeJSONObj: Object,
-  callback: (arg0: Error, arg1: PeerId) => void
+  callback: (arg0: Error | undefined, arg1: PeerId) => void
 ) {
   let node: any;
 
   waterfall(
     [
-      (cb: (arg0: null, arg1: null) => void) => {
+      (cb: (arg0: Error, arg1: PeerId) => void) => {
         createFromJSON(nodeJSONObj, cb);
       },
       (peerId: any, cb: any) => {
@@ -226,7 +226,7 @@ export function createWebNodeFromJSON(
       }
     ],
     (err: any) => {
-      callback(null, node);
+      callback(undefined, node);
     }
   );
 }
@@ -239,7 +239,7 @@ export function createNodeFromJSON(
 
   waterfall(
     [
-      (cb: (arg0: null, arg1: null) => void) => {
+      (cb: (arg0: Error, arg1: PeerId) => void) => {
         createFromJSON(nodeJSONObj, cb);
       },
       (peerId: any, cb: any) => {
@@ -312,7 +312,7 @@ export function createNodeFromJSON(
   );
 }
 
-export default function createNode(
+export function createNode(
   keyname: any,
   callback: (arg0: null, arg1: any) => void
 ) {

@@ -8,6 +8,7 @@ import Wstar from "libp2p-webrtc-star";
 // import { defaultsDeep } from '@nodeutils/defaults-deep'
 import libp2p from "libp2p";
 import wrtc from "wrtc";
+import WebRTCDirect from "libp2p-webrtc-direct";
 
 const upgrader = {
   upgradeInbound: (maConn: () => {}) => maConn,
@@ -84,7 +85,7 @@ class WebRTCBundle extends libp2p {
 }
 
 class WebRTCDirectBundle extends libp2p {
-  constructor(_options) {
+  constructor(_options: any) {
     //const wrtcStar = new WStar();
     const webRTCDirect = new WebRTCDirect();
 
@@ -117,7 +118,7 @@ class WebRTCDirectBundle extends libp2p {
         }
       }
     };
-    super(defaultsDeep(_options, defaults));
+    super({ ..._options, ...defaults });
   }
 }
 export { WebRTCBundle, WebSocketBundle };

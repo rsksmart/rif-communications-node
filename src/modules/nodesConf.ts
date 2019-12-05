@@ -3,7 +3,7 @@
 import * as yargs from "yargs";
 
 import FsStore from "datastore-fs";
-import createNode from "./createNode";
+import { createNode, createNodeFromJSON } from "./createNode";
 
 const datastore = new FsStore("./node-keystore");
 
@@ -26,6 +26,7 @@ const myArgs = yargs
     description: "Address of a bootnode to connect to"
   })
   .default("key", true)
+  .default("keystore", "")
   .default("automated", false)
   .default("nodes", 10) // ONlY for test scenario
   .default("algorithm", "DEFAULT")
@@ -33,7 +34,10 @@ const myArgs = yargs
 
 const generateKey = myArgs.key;
 
-exports.createPeer = (keyname: string, callback: () => void) =>
-  createNode(keyname, callback);
+exports.createPeer = (keyname: string, callback: () => void) => {
+  myArgs.keystore !== ""
+    ? createNodeFromJSON(keyname, callback)
+    : createNode(keyname, callback);
+};
 
 export { myArgs, generateKey, datastore };
