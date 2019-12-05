@@ -76,8 +76,8 @@ export function createNodeFromPublicKey(
 
           node.dht.registerListener(
             "kad-msg-received",
-            (kadMsg: string) => {
-              console.log("[Contact] -> " + kadMsg);
+            (kadMsg: any) => {
+              console.log("[" + kadMsg.sender + "] -> " + kadMsg.msg);
             },
             () => {
               node.start(cb);
@@ -140,8 +140,8 @@ function _createNode(peerInfo: any, cb: any) {
 
     node.dht.registerListener(
       "kad-msg-received",
-      (kadMsg: string) => {
-        console.log("[Contact] -> " + kadMsg);
+      (kadMsg: any) => {
+        console.log("[" + kadMsg.sender + "] -> " + kadMsg.msg);
       },
       () => {
         node.start(cb);
@@ -215,8 +215,8 @@ export function createWebNodeFromJSON(
 
           node.dht.registerListener(
             "kad-msg-received",
-            (kadMsg: string) => {
-              console.log("[Contact] -> " + kadMsg);
+            (kadMsg: any) => {
+              console.log("[" + kadMsg.sender + "] -> " + kadMsg.msg);
             },
             () => {
               node.start(cb);
@@ -296,8 +296,8 @@ export function createNodeFromJSON(
 
           node.dht.registerListener(
             "kad-msg-received",
-            (kadMsg: string) => {
-              console.log("[Contact] -> " + kadMsg);
+            (kadMsg: any) => {
+              console.log("[" + kadMsg.sender + "] -> " + kadMsg.msg);
             },
             () => {
               node.start(cb);
@@ -386,8 +386,8 @@ export function createNode(
 
           node.dht.registerListener(
             "kad-msg-received",
-            (kadMsg: string) => {
-              console.log("[Contact] -> " + kadMsg);
+            (kadMsg: any) => {
+              console.log("[" + kadMsg.sender + "] -> " + kadMsg.msg);
             },
             () => {
               node.start(cb);
