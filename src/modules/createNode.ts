@@ -33,6 +33,26 @@ export function createNodeFromPublicKey(
                 myArgs.host +
                 "/tcp/" +
                 myArgs.port +
+                "/wss/p2p-webrtc-star/ipfs/" +
+                peerInfo.id.toB58String()
+            )
+          );
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" +
+                myArgs.host +
+                "/tcp/" +
+                443 +
+                "/wss/p2p-webrtc-star/ipfs/" +
+                peerInfo.id.toB58String()
+            )
+          );
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" +
+                myArgs.host +
+                "/tcp/" +
+                myArgs.port +
                 "/ws/p2p-webrtc-star/ipfs/" +
                 peerInfo.id.toB58String()
             )
@@ -43,6 +63,14 @@ export function createNodeFromPublicKey(
           console.log(peerInfo);
           node.start(cb);
         } else {
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" + myArgs.host + "/tcp/" + myArgs.socketport + "/wss"
+            )
+          );
+          peerInfo.multiaddrs.add(
+            new Multiaddr("/ip4/" + myArgs.host + "/tcp/" + 443 + "/wss")
+          );
           peerInfo.multiaddrs.add(
             new Multiaddr(
               "/ip4/" + myArgs.host + "/tcp/" + myArgs.socketport + "/ws"
@@ -102,6 +130,26 @@ function _createNode(peerInfo: any, cb: any) {
           myArgs.host +
           "/tcp/" +
           myArgs.port +
+          "/wss/p2p-webrtc-star/ipfs/" +
+          peerInfo.id.toB58String()
+      )
+    );
+    peerInfo.multiaddrs.add(
+      new Multiaddr(
+        "/ip4/" +
+          myArgs.host +
+          "/tcp/" +
+          443 +
+          "/wss/p2p-webrtc-star/ipfs/" +
+          peerInfo.id.toB58String()
+      )
+    );
+    peerInfo.multiaddrs.add(
+      new Multiaddr(
+        "/ip4/" +
+          myArgs.host +
+          "/tcp/" +
+          myArgs.port +
           "/ws/p2p-webrtc-star/ipfs/" +
           peerInfo.id.toB58String()
       )
@@ -112,6 +160,14 @@ function _createNode(peerInfo: any, cb: any) {
     console.log(peerInfo);
     node.start(cb);
   } else {
+    peerInfo.multiaddrs.add(
+      new Multiaddr(
+        "/ip4/" + myArgs.host + "/tcp/" + myArgs.socketport + "/wss"
+      )
+    );
+    peerInfo.multiaddrs.add(
+      new Multiaddr("/ip4/" + myArgs.host + "/tcp/" + 443 + "/wss")
+    );
     peerInfo.multiaddrs.add(
       new Multiaddr("/ip4/" + myArgs.host + "/tcp/" + myArgs.socketport + "/ws")
     );
@@ -172,6 +228,26 @@ export function createWebNodeFromJSON(
                 myArgs.host +
                 "/tcp/" +
                 myArgs.port +
+                "/wss/p2p-webrtc-star/ipfs/" +
+                peerInfo.id.toB58String()
+            )
+          );
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" +
+                myArgs.host +
+                "/tcp/" +
+                443 +
+                "/wss/p2p-webrtc-star/ipfs/" +
+                peerInfo.id.toB58String()
+            )
+          );
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" +
+                myArgs.host +
+                "/tcp/" +
+                myArgs.port +
                 "/ws/p2p-webrtc-star/ipfs/" +
                 peerInfo.id.toB58String()
             )
@@ -182,6 +258,14 @@ export function createWebNodeFromJSON(
           console.log(peerInfo);
           node.start(cb);
         } else {
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" + myArgs.host + "/tcp/" + myArgs.socketport + "/wss"
+            )
+          );
+          peerInfo.multiaddrs.add(
+            new Multiaddr("/ip4/" + myArgs.host + "/tcp/" + 443 + "/wss")
+          );
           peerInfo.multiaddrs.add(
             new Multiaddr(
               "/ip4/" + myArgs.host + "/tcp/" + myArgs.socketport + "/ws"
@@ -253,6 +337,26 @@ export function createNodeFromJSON(
                 myArgs.host +
                 "/tcp/" +
                 myArgs.port +
+                "/wss/p2p-webrtc-star/ipfs/" +
+                peerInfo.id.toB58String()
+            )
+          );
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" +
+                myArgs.host +
+                "/tcp/" +
+                443 +
+                "/wss/p2p-webrtc-star/ipfs/" +
+                peerInfo.id.toB58String()
+            )
+          );
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" +
+                myArgs.host +
+                "/tcp/" +
+                myArgs.port +
                 "/ws/p2p-webrtc-star/ipfs/" +
                 peerInfo.id.toB58String()
             )
@@ -263,6 +367,14 @@ export function createNodeFromJSON(
           console.log(peerInfo);
           node.start(cb);
         } else {
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" + myArgs.host + "/tcp/" + myArgs.socketport + "/wss"
+            )
+          );
+          peerInfo.multiaddrs.add(
+            new Multiaddr("/ip4/" + myArgs.host + "/tcp/" + 443 + "/wss")
+          );
           peerInfo.multiaddrs.add(
             new Multiaddr(
               "/ip4/" + myArgs.host + "/tcp/" + myArgs.socketport + "/ws"
@@ -342,6 +454,27 @@ export function createNode(
                 myArgs.host +
                 "/tcp/" +
                 myArgs.port +
+                "/wss/p2p-webrtc-star/ipfs/" +
+                peerInfo.id.toB58String()
+            )
+          );
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" +
+                myArgs.host +
+                "/tcp/" +
+                443 +
+                "/wss/p2p-webrtc-star/ipfs/" +
+                peerInfo.id.toB58String()
+            )
+          );
+
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" +
+                myArgs.host +
+                "/tcp/" +
+                myArgs.port +
                 "/ws/p2p-webrtc-star/ipfs/" +
                 peerInfo.id.toB58String()
             )
@@ -356,6 +489,15 @@ export function createNode(
           peerInfo.multiaddrs.add(
             new Multiaddr(
               "/ip4/" + myArgs.host + "/tcp/" + myArgs.socketport + "/wss"
+            )
+          );
+          peerInfo.multiaddrs.add(
+            new Multiaddr("/ip4/" + myArgs.host + "/tcp/" + 443 + "/wss")
+          );
+
+          peerInfo.multiaddrs.add(
+            new Multiaddr(
+              "/ip4/" + myArgs.host + "/tcp/" + myArgs.socketport + "/ws"
             )
           );
           node = new WebSocketBundle({
