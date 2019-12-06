@@ -355,7 +355,7 @@ export function createNode(
           console.log("USING ONLY SOCKET %s", myArgs.socketport);
           peerInfo.multiaddrs.add(
             new Multiaddr(
-              "/ip4/" + myArgs.host + "/tcp/" + myArgs.socketport + "/ws"
+              "/ip4/" + myArgs.host + "/tcp/" + myArgs.socketport + "/wss"
             )
           );
           node = new WebSocketBundle({
