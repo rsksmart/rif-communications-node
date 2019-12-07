@@ -316,7 +316,7 @@ export function createWebNodeFromJSON (
 }
 
 export function createNodeFromJSON (
-  nodeJSONObj: Record<string, any>,
+  nodeJSONObj: any,
   callback: (arg0: null, arg1: any) => void
 ) {
   let node: any
