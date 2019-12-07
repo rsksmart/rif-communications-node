@@ -1,18 +1,24 @@
 // Main process
 import * as async from 'async'
-import createNode from './modules/createNode'
+import { createNode, createNodeFromJSON } from './modules/createNode'
 import cryptoUtil from 'libp2p-crypto'
 import Multiaddr from 'multiaddr'
 import multihashingAsync from 'multihashing-async'
 import { myArgs } from './modules/nodesConf'
+import { CommandLineChat } from './modules/chatClient'
 
 const keyname = myArgs.keyname
+const keystore = myArgs.keystore
 
 function mainProcess () {
   async.waterfall(
     [
       (cb: () => void) => {
-        return createNode(keyname, cb)
+        if (keystore !== '') {
+          return createNodeFromJSON(keystore, cb)
+        } else {
+          return createNode(keyname, cb)
+        }
       }
     ],
     (err: Error | null | undefined, node: any) => {
@@ -56,13 +62,12 @@ function mainProcess () {
                 if (err) {
                   throw err
                 }
-
-                node.on(
-                  'peer:discovery',
-                  (peer: { id: { toB58String: () => void } }) =>
-                    console.log('Discovered:', peer.id.toB58String())
-                )
                 console.log('Connection Successful')
+
+                if (myArgs.chatClient) {
+                  const chatClient: CommandLineChat = new CommandLineChat(node)
+                  chatClient.init()
+                }
               }
             )
           }
