@@ -207,7 +207,7 @@ function _createNode (peerInfo: any, cb: any) {
 }
 
 export function createWebNodeFromJSON (
-  nodeJSONObj: Record<string, any>,
+  nodeJSONObj: any,
   callback: (arg0: Error | undefined, arg1: PeerId) => void
 ) {
   let node: any
@@ -316,7 +316,7 @@ export function createWebNodeFromJSON (
 }
 
 export function createNodeFromJSON (
-  nodeJSONObj: Record<string, any>,
+  nodeJSONObj: any,
   callback: (arg0: null, arg1: any) => void
 ) {
   let node: any
