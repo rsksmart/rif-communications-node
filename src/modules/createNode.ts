@@ -42,16 +42,6 @@ export function createNodeFromPublicKey (
               '/ip4/' +
                 myArgs.host +
                 '/tcp/' +
-                443 +
-                '/wss/p2p-webrtc-star/ipfs/' +
-                peerInfo.id.toB58String()
-            )
-          )
-          peerInfo.multiaddrs.add(
-            new Multiaddr(
-              '/ip4/' +
-                myArgs.host +
-                '/tcp/' +
                 myArgs.port +
                 '/ws/p2p-webrtc-star/ipfs/' +
                 peerInfo.id.toB58String()
@@ -67,9 +57,6 @@ export function createNodeFromPublicKey (
             new Multiaddr(
               '/ip4/' + myArgs.host + '/tcp/' + myArgs.socketport + '/wss'
             )
-          )
-          peerInfo.multiaddrs.add(
-            new Multiaddr('/ip4/' + myArgs.host + '/tcp/' + 443 + '/wss')
           )
           peerInfo.multiaddrs.add(
             new Multiaddr(
@@ -139,16 +126,6 @@ function _createNode (peerInfo: any, cb: any) {
         '/ip4/' +
           myArgs.host +
           '/tcp/' +
-          443 +
-          '/wss/p2p-webrtc-star/ipfs/' +
-          peerInfo.id.toB58String()
-      )
-    )
-    peerInfo.multiaddrs.add(
-      new Multiaddr(
-        '/ip4/' +
-          myArgs.host +
-          '/tcp/' +
           myArgs.port +
           '/ws/p2p-webrtc-star/ipfs/' +
           peerInfo.id.toB58String()
@@ -164,9 +141,6 @@ function _createNode (peerInfo: any, cb: any) {
       new Multiaddr(
         '/ip4/' + myArgs.host + '/tcp/' + myArgs.socketport + '/wss'
       )
-    )
-    peerInfo.multiaddrs.add(
-      new Multiaddr('/ip4/' + myArgs.host + '/tcp/' + 443 + '/wss')
     )
     peerInfo.multiaddrs.add(
       new Multiaddr('/ip4/' + myArgs.host + '/tcp/' + myArgs.socketport + '/ws')
@@ -237,16 +211,6 @@ export function createWebNodeFromJSON (
               '/ip4/' +
                 myArgs.host +
                 '/tcp/' +
-                443 +
-                '/wss/p2p-webrtc-star/ipfs/' +
-                peerInfo.id.toB58String()
-            )
-          )
-          peerInfo.multiaddrs.add(
-            new Multiaddr(
-              '/ip4/' +
-                myArgs.host +
-                '/tcp/' +
                 myArgs.port +
                 '/ws/p2p-webrtc-star/ipfs/' +
                 peerInfo.id.toB58String()
@@ -262,9 +226,6 @@ export function createWebNodeFromJSON (
             new Multiaddr(
               '/ip4/' + myArgs.host + '/tcp/' + myArgs.socketport + '/wss'
             )
-          )
-          peerInfo.multiaddrs.add(
-            new Multiaddr('/ip4/' + myArgs.host + '/tcp/' + 443 + '/wss')
           )
           peerInfo.multiaddrs.add(
             new Multiaddr(
@@ -346,16 +307,6 @@ export function createNodeFromJSON (
               '/ip4/' +
                 myArgs.host +
                 '/tcp/' +
-                443 +
-                '/wss/p2p-webrtc-star/ipfs/' +
-                peerInfo.id.toB58String()
-            )
-          )
-          peerInfo.multiaddrs.add(
-            new Multiaddr(
-              '/ip4/' +
-                myArgs.host +
-                '/tcp/' +
                 myArgs.port +
                 '/ws/p2p-webrtc-star/ipfs/' +
                 peerInfo.id.toB58String()
@@ -371,9 +322,6 @@ export function createNodeFromJSON (
             new Multiaddr(
               '/ip4/' + myArgs.host + '/tcp/' + myArgs.socketport + '/wss'
             )
-          )
-          peerInfo.multiaddrs.add(
-            new Multiaddr('/ip4/' + myArgs.host + '/tcp/' + 443 + '/wss')
           )
           peerInfo.multiaddrs.add(
             new Multiaddr(
@@ -458,16 +406,6 @@ export function createNode (
                 peerInfo.id.toB58String()
             )
           )
-          peerInfo.multiaddrs.add(
-            new Multiaddr(
-              '/ip4/' +
-                myArgs.host +
-                '/tcp/' +
-                443 +
-                '/wss/p2p-webrtc-star/ipfs/' +
-                peerInfo.id.toB58String()
-            )
-          )
 
           peerInfo.multiaddrs.add(
             new Multiaddr(
@@ -490,9 +428,6 @@ export function createNode (
             new Multiaddr(
               '/ip4/' + myArgs.host + '/tcp/' + myArgs.socketport + '/wss'
             )
-          )
-          peerInfo.multiaddrs.add(
-            new Multiaddr('/ip4/' + myArgs.host + '/tcp/' + 443 + '/wss')
           )
 
           peerInfo.multiaddrs.add(
