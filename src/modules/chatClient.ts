@@ -2,13 +2,14 @@ import { createInterface } from 'readline'
 import { PeerIdWithIs, PeerId, createFromPubKey } from 'peer-id'
 import Libp2p from 'libp2p'
 import { myArgs } from './nodesConf'
+import logger from '../logger'
 
-const enter_pub_key_str = "Enter the contact's public key"
-const enter_msg = 'Enter your message'
+const enterPubKeyStr = "Enter the contact's public key"
+const enterMsg = 'Enter your message'
 const exit = '/exit'
-const session_lost = 'Session with chat lost'
-const msg_wait_token = '.'
-const unknown_contact = 'The selected user is not a known contact'
+const sessionLost = 'Session with chat lost'
+const msgWaitToken = '.'
+const unknownContact = 'The selected user is not a known contact'
 
 export class CommandLineChat {
   activeContacts: Map<string, PeerId>;
@@ -29,16 +30,19 @@ export class CommandLineChat {
   // Easy way to start a chat with a single contact
   init () {
     this.addContact((err, contact) => {
+      if (err) throw err
+
       this.startChat(contact)
     })
   }
 
   addContact (callback: (arg0: null, arg1: any) => void) {
-    this.rl.question(enter_pub_key_str, publicKey => {
+    this.rl.question(enterPubKeyStr, publicKey => {
       createFromPubKey(publicKey, (err: Error, pId: PeerId) => {
-        if (err == undefined) {
-          this.activeContacts.set(pId.toB58String(), pId)
-        }
+        if (err) throw err
+
+        this.activeContacts.set(pId.toB58String(), pId)
+
         callback(null, pId.toB58String())
       })
     })
@@ -46,7 +50,7 @@ export class CommandLineChat {
 
   startChat (contact: string) {
     if (!this.activeContacts.has(contact)) {
-      console.warn(unknown_contact)
+      logger.warn(unknownContact)
       return
     }
     const pId: PeerId | undefined = this.activeContacts.get(contact)
@@ -55,8 +59,8 @@ export class CommandLineChat {
       ? this.activeChats.get(contact)
       : 0
 
-    this.rl.question(enter_msg, message => {
-      if (message != exit) {
+    this.rl.question(enterMsg, message => {
+      if (message !== exit) {
         this.activeChats.set(contact, msgNonce + 1)
 
         this.clientNode.dht.sendMessage(
@@ -66,7 +70,7 @@ export class CommandLineChat {
           myArgs.ofuscate,
           (err: Error) => {
             if (err) {
-              console.log(err)
+              logger.error(err)
             } else {
               this.processNewChatLine(contact)
             }
@@ -81,12 +85,12 @@ export class CommandLineChat {
       !this.activeContacts.has(peerIdString) ||
       !this.activeChats.has(peerIdString)
     ) {
-      console.error(session_lost)
+      logger.error(sessionLost)
       return
     }
 
-    this.rl.question(msg_wait_token, message => {
-      if (message != exit) {
+    this.rl.question(msgWaitToken, message => {
+      if (message !== exit) {
         const msgNonce = this.activeChats.get(peerIdString)
         this.activeChats.set(peerIdString, msgNonce + 1)
 
@@ -97,7 +101,7 @@ export class CommandLineChat {
           myArgs.ofuscate,
           (err: Error) => {
             if (err) {
-              console.log(err)
+              logger.error(err)
             } else {
               this.processNewChatLine(peerIdString)
             }
