@@ -51,7 +51,7 @@
     "multiaddr": "6.1.1",
     "multihashing-async": "0.5.2",
     "peer-info": "0.15.1",
-    "peer-id": "^0.13.5",
+    "peer-id": "0.12.5",
     "wrtc": "^0.4.2",
     "yargs": "^14.2.2"
   },
