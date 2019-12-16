@@ -9,6 +9,8 @@ import Multiaddr from 'multiaddr'
 import { myArgs } from './nodesConf'
 import { waterfall } from 'async'
 
+import logger from '../logger'
+
 const generateKey = myArgs.key
 
 export function createNodeFromPublicKey (
@@ -50,7 +52,7 @@ export function createNodeFromPublicKey (
           node = new WebRTCBundle({
             peerInfo
           })
-          console.log(peerInfo)
+          logger.log(peerInfo)
           node.start(cb)
         } else {
           peerInfo.multiaddrs.add(
@@ -68,12 +70,12 @@ export function createNodeFromPublicKey (
           })
 
           node.on('peer', (peerInfo: any) => {
-            console.log('Recibi algo ')
-            console.log(peerInfo)
+            logger.info('Recibi algo ')
+            logger.info(peerInfo)
           })
 
           node.on('peer:discovery', (peerInfo: any) => {
-            console.log(
+            logger.info(
               'Discovered a peer from here: ',
               peerInfo.id.toB58String()
             )
@@ -81,18 +83,18 @@ export function createNodeFromPublicKey (
 
           node.on('peer:connect', (peerInfo: any) => {
             const idStr = peerInfo.id.toB58String()
-            console.log('Got connection to: ' + idStr)
+            logger.info('Got connection to: ' + idStr)
           })
 
           node.on('peer:disconnect', (peerInfo: any) => {
             const idStr = peerInfo.id.toB58String()
-            console.log('Got discconected from %s ', idStr)
+            logger.info('Got discconected from %s ', idStr)
           })
 
           node.dht.registerListener(
             'kad-msg-received',
             (kadMsg: any) => {
-              console.log('[' + kadMsg.sender + '] -> ' + kadMsg.msg)
+              logger.info('[' + kadMsg.sender + '] -> ' + kadMsg.msg)
             },
             () => {
               node.start(cb)
@@ -102,6 +104,7 @@ export function createNodeFromPublicKey (
       }
     ],
     (err: any) => {
+      if (err) throw err
       callback(null, node)
     }
   )
@@ -134,7 +137,7 @@ function _createNode (peerInfo: any, cb: any) {
     node = new WebRTCBundle({
       peerInfo
     })
-    console.log(peerInfo)
+    logger.info(peerInfo)
     node.start(cb)
   } else {
     peerInfo.multiaddrs.add(
@@ -150,28 +153,28 @@ function _createNode (peerInfo: any, cb: any) {
     })
 
     node.on('peer', (peerInfo: any) => {
-      console.log('Recibi algo ')
-      console.log(peerInfo)
+      logger.info('Recibi algo ')
+      logger.info(peerInfo)
     })
 
     node.on('peer:discovery', (peerInfo: any) => {
-      console.log('Discovered a peer from here: ', peerInfo.id.toB58String())
+      logger.info('Discovered a peer from here: ', peerInfo.id.toB58String())
     })
 
     node.on('peer:connect', (peerInfo: any) => {
       const idStr = peerInfo.id.toB58String()
-      console.log('Got connection to: ' + idStr)
+      logger.info('Got connection to: ' + idStr)
     })
 
     node.on('peer:disconnect', (peerInfo: any) => {
       const idStr = peerInfo.id.toB58String()
-      console.log('Got discconected from %s ', idStr)
+      logger.info('Got discconected from %s ', idStr)
     })
 
     node.dht.registerListener(
       'kad-msg-received',
       (kadMsg: any) => {
-        console.log('[' + kadMsg.sender + '] -> ' + kadMsg.msg)
+        logger.info('[' + kadMsg.sender + '] -> ' + kadMsg.msg)
       },
       () => {
         node.start(cb)
@@ -219,7 +222,7 @@ export function createWebNodeFromJSON (
           node = new WebRTCBundle({
             peerInfo
           })
-          console.log(peerInfo)
+          logger.info(peerInfo)
           node.start(cb)
         } else {
           peerInfo.multiaddrs.add(
@@ -237,12 +240,12 @@ export function createWebNodeFromJSON (
           })
 
           node.on('peer', (peerInfo: any) => {
-            console.log('Recibi algo ')
-            console.log(peerInfo)
+            logger.info('Recibi algo ')
+            logger.info(peerInfo)
           })
 
           node.on('peer:discovery', (peerInfo: any) => {
-            console.log(
+            logger.info(
               'Discovered a peer from here: ',
               peerInfo.id.toB58String()
             )
@@ -250,18 +253,18 @@ export function createWebNodeFromJSON (
 
           node.on('peer:connect', (peerInfo: any) => {
             const idStr = peerInfo.id.toB58String()
-            console.log('Got connection to: ' + idStr)
+            logger.info('Got connection to: ' + idStr)
           })
 
           node.on('peer:disconnect', (peerInfo: any) => {
             const idStr = peerInfo.id.toB58String()
-            console.log('Got discconected from %s ', idStr)
+            logger.info('Got discconected from %s ', idStr)
           })
 
           node.dht.registerListener(
             'kad-msg-received',
             (kadMsg: any) => {
-              console.log('[' + kadMsg.sender + '] -> ' + kadMsg.msg)
+              logger.info('[' + kadMsg.sender + '] -> ' + kadMsg.msg)
             },
             () => {
               node.start(cb)
@@ -271,6 +274,7 @@ export function createWebNodeFromJSON (
       }
     ],
     (err: any) => {
+      if (err) throw err
       callback(undefined, node)
     }
   )
@@ -315,7 +319,7 @@ export function createNodeFromJSON (
           node = new WebRTCBundle({
             peerInfo
           })
-          console.log(peerInfo)
+          logger.info(peerInfo)
           node.start(cb)
         } else {
           peerInfo.multiaddrs.add(
@@ -333,12 +337,12 @@ export function createNodeFromJSON (
           })
 
           node.on('peer', (peerInfo: any) => {
-            console.log('Recibi algo ')
-            console.log(peerInfo)
+            logger.info('Recibi algo ')
+            logger.info(peerInfo)
           })
 
           node.on('peer:discovery', (peerInfo: any) => {
-            console.log(
+            logger.info(
               'Discovered a peer from here: ',
               peerInfo.id.toB58String()
             )
@@ -346,18 +350,18 @@ export function createNodeFromJSON (
 
           node.on('peer:connect', (peerInfo: any) => {
             const idStr = peerInfo.id.toB58String()
-            console.log('Got connection to: ' + idStr)
+            logger.info('Got connection to: ' + idStr)
           })
 
           node.on('peer:disconnect', (peerInfo: any) => {
             const idStr = peerInfo.id.toB58String()
-            console.log('Got discconected from %s ', idStr)
+            logger.info('Got discconected from %s ', idStr)
           })
 
           node.dht.registerListener(
             'kad-msg-received',
             (kadMsg: any) => {
-              console.log('[' + kadMsg.sender + '] -> ' + kadMsg.msg)
+              logger.info('[' + kadMsg.sender + '] -> ' + kadMsg.msg)
             },
             () => {
               node.start(cb)
@@ -367,6 +371,7 @@ export function createNodeFromJSON (
       }
     ],
     (err: any) => {
+      if (err) throw err
       callback(null, node)
     }
   )
@@ -395,7 +400,7 @@ export function createNode (
       },
       (peerInfo: any, cb: any) => {
         if (myArgs.webrtc) {
-          console.log('USING WEB RTC')
+          logger.info('USING WEB RTC')
           peerInfo.multiaddrs.add(
             new Multiaddr(
               '/ip4/' +
@@ -420,10 +425,10 @@ export function createNode (
           node = new WebRTCBundle({
             peerInfo
           })
-          console.log(peerInfo)
+          logger.info(peerInfo)
           node.start(cb)
         } else {
-          console.log('USING ONLY SOCKET %s', myArgs.socketport)
+          logger.info('USING ONLY SOCKET %s', myArgs.socketport)
           peerInfo.multiaddrs.add(
             new Multiaddr(
               '/ip4/' + myArgs.host + '/tcp/' + myArgs.socketport + '/wss'
@@ -440,12 +445,12 @@ export function createNode (
           })
 
           node.on('peer', (peerInfo: any) => {
-            console.log('Recibi algo ')
-            console.log(peerInfo)
+            logger.info('Recibi algo ')
+            logger.info(peerInfo)
           })
 
           node.on('peer:discovery', (peerInfo: any) => {
-            console.log(
+            logger.info(
               'Discovered a peer from here: ',
               peerInfo.id.toB58String()
             )
@@ -453,18 +458,18 @@ export function createNode (
 
           node.on('peer:connect', (peerInfo: any) => {
             const idStr = peerInfo.id.toB58String()
-            console.log('Got connection to: ' + idStr)
+            logger.info('Got connection to: ' + idStr)
           })
 
           node.on('peer:disconnect', (peerInfo: any) => {
             const idStr = peerInfo.id.toB58String()
-            console.log('Got discconected from %s ', idStr)
+            logger.info('Got discconected from %s ', idStr)
           })
 
           node.dht.registerListener(
             'kad-msg-received',
             (kadMsg: any) => {
-              console.log('[' + kadMsg.sender + '] -> ' + kadMsg.msg)
+              logger.info('[' + kadMsg.sender + '] -> ' + kadMsg.msg)
             },
             () => {
               node.start(cb)
@@ -474,6 +479,7 @@ export function createNode (
       }
     ],
     (err: any) => {
+      if (err) throw err
       callback(null, node)
     }
   )

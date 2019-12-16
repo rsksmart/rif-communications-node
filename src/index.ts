@@ -6,6 +6,11 @@ import Multiaddr from 'multiaddr'
 import multihashingAsync from 'multihashing-async'
 import { myArgs } from './modules/nodesConf'
 import { CommandLineChat } from './modules/chatClient'
+import logger from './logger'
+
+process.on('unhandledRejection', (reason, p) =>
+  logger.error('Unhandled Rejection at: Promise ', p, reason)
+)
 
 const keyname = myArgs.keyname
 const keystore = myArgs.keystore
@@ -22,29 +27,33 @@ function mainProcess () {
       }
     ],
     (err: Error | null | undefined, node: any) => {
-      console.log('---- YOUR NODE INFORMATION ----')
-      console.log('ID: %s', node.peerInfo.id._idB58String)
-      console.log('ID length: %s', node.peerInfo.id.id.length)
-      console.log('Multiaddresses:')
-      node.peerInfo.multiaddrs.forEach((ma: { toString: () => void }) =>
-        console.log(ma.toString())
+      if (err) throw err
+
+      logger.info('---- YOUR NODE INFORMATION ----')
+      logger.info('ID: %s', node.peerInfo.id._idB58String)
+      logger.info('ID length: %s', node.peerInfo.id.id.length)
+      logger.info('Multiaddresses:')
+      node.peerInfo.multiaddrs.forEach((ma: { toString: () => string }) =>
+        logger.info(ma.toString())
       )
       multihashingAsync.digest(
         node.peerInfo.id.id,
         'sha2-256',
         (err: Error, dhtId: any) => {
-          console.log(
+          if (err) throw err
+
+          logger.debug(
             'Internal DHT ID: %s',
             multihashingAsync.multihash.toB58String(dhtId)
           )
-          console.log('ID length: %s', dhtId.length)
-          console.log(dhtId)
-          console.log(
+          logger.debug('ID length: %s', dhtId.length)
+          logger.debug(dhtId)
+          logger.debug(
             'Internal DHT ID is displayed for debug pursposes, never reference by this ID'
           )
-          console.log('---------------------------')
-          console.log('PUBLIC KEY')
-          console.log(
+          logger.info('---------------------------')
+          logger.info('PUBLIC KEY')
+          logger.info(
             cryptoUtil.keys
               .marshalPublicKey(node.peerInfo.id._pubKey, 'secp256k1')
               .toString('base64')
@@ -62,7 +71,7 @@ function mainProcess () {
                 if (err) {
                   throw err
                 }
-                console.log('Connection Successful')
+                logger.info('Connection Successful')
 
                 if (myArgs.chatClient) {
                   const chatClient: CommandLineChat = new CommandLineChat(node)

@@ -39,8 +39,8 @@
   "dependencies": {
     "async": "^3.1.0",
     "datastore-fs": "^0.9.1",
-    "libp2p-crypto": "^0.17.1",
     "libp2p": "rootstock/js-libp2p#stable",
+    "libp2p-crypto": "^0.17.1",
     "libp2p-kad-dht": "rootstock/js-libp2p-kad-dht#stable",
     "libp2p-keychain": "0.5.1",
     "libp2p-mplex": "0.8.5",
@@ -52,6 +52,7 @@
     "multihashing-async": "0.5.2",
     "peer-info": "0.15.1",
     "peer-id": "0.12.5",
+    "winston": "^3.2.1",
     "wrtc": "^0.4.2",
     "yargs": "^14.2.2"
   },
