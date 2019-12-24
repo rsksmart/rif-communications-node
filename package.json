@@ -54,7 +54,7 @@
     "peer-id": "0.12.5",
     "winston": "^3.2.1",
     "wrtc": "^0.4.2",
-    "yargs": "^14.2.2"
+    "yargs": "^15.0.2"
   },
   "devDependencies": {
     "@types/chai": "^4.2.4",
