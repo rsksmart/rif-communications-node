@@ -53,7 +53,7 @@
     "peer-info": "0.15.1",
     "peer-id": "0.12.5",
     "winston": "^3.2.1",
-    "wrtc": "^0.4.2",
+    "wrtc": "^0.4.3",
     "yargs": "^14.2.2"
   },
   "devDependencies": {
