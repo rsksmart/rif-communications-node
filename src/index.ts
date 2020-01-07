@@ -1,10 +1,10 @@
 // Main process
 import * as async from "async";
-import { createNode, createNodeFromJSON } from "./modules/createNode";
+import { createNode, createNodeFromPrivateKey } from "./modules/createNode";
 import cryptoUtil from "libp2p-crypto";
 import Multiaddr from "multiaddr";
 import multihashingAsync from "multihashing-async";
-import { myArgs } from "./modules/nodesConf";
+import { myArgs, keychain } from "./modules/nodesConf";
 import { CommandLineChat } from "./modules/chatClient";
 import logger from "./logger";
 
@@ -20,7 +20,7 @@ function mainProcess() {
       (cb: () => void) => {
         myArgs.createKey
           ? createNode(keyname, cb)
-          : createNodeFromJSON(keyname, cb);
+          : createNodeFromPrivateKey(keyname, cb);
       }
     ],
     (err: Error | null | undefined, node: any) => {
@@ -50,6 +50,13 @@ function mainProcess() {
           );
           logger.info("---------------------------");
           logger.info("PUBLIC KEY");
+          console.log(node.peerInfo.id._pubKey);
+          keychain.listKeys().then((keys: any) => {
+            console.log(keys);
+          });
+
+          //TODO PARECE QUE EL IMPORT PEER NO FUNCIONA EN EL KEYCHAIN!!
+
           logger.info(
             cryptoUtil.keys
               .marshalPublicKey(node.peerInfo.id._pubKey, "secp256k1")
