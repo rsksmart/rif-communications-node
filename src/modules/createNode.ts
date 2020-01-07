@@ -9,14 +9,14 @@ import {
   myArgs,
   addSocketMultiaddress,
   addWebRTCMultiaddress,
-  datastore
+  keychain
 } from "./nodesConf";
 import { waterfall } from "async";
 import Keychain from "libp2p-keychain";
 import logger from "../logger";
 import Libp2p from "libp2p";
 
-const generateKey = myArgs.key;
+const generateKey = myArgs.createKey;
 
 function _registerNode(node: any, cb: any) {
   node.on("peer", (peerInfo: any) => {
@@ -94,7 +94,7 @@ export function createNodeFromPublicKey(
   );
 }
 
-export function createNodeFromPrivateKey(callback: any) {
+export function createNodeFromPrivateKey(keyname: string, callback: any) {
   let node: any;
 
   waterfall(
@@ -102,10 +102,7 @@ export function createNodeFromPrivateKey(callback: any) {
       async (cb: (arg0: Error | null, arg1: any) => void) => {
         if (myArgs.keystore !== "") {
           //Store new peerId JSON encrypted using key stored in keystore
-          const keychain = new Keychain(datastore, {
-            passPhrase: myArgs.passphrase
-          });
-          const privKey: string = await keychain._getPrivateKey(myArgs.keyname);
+          const privKey: string = await keychain._getPrivateKey(keyname);
           cb(null, privKey);
         } else {
           cb(new Error("KeyStore is mandatory when loading a key"), null);
@@ -167,18 +164,18 @@ export function createNode(
   waterfall(
     [
       (cb: (arg0: null, arg1: null) => void) => {
-        if (generateKey) createKey(keyname, cb);
-        else cb(null, null);
+        if (generateKey) {
+          createKey(keyname, cb);
+        } else {
+          cb(null, null);
+        }
       },
       (peerId: any, cb: any) => {
         if (myArgs.keystore !== "") {
           //Store new peerId JSON encrypted using key stored in keystore
-          const keychain = new Keychain(datastore, {
-            passPhrase: myArgs.passphrase
-          });
-          keychain.importPeer("peer-key", peerId);
+          keychain.importPeer(keyname, peerId);
         }
-        cb(peerId, cb);
+        cb(null, peerId);
       },
       (peerId: any, cb: any) => {
         if (generateKey) create(peerId, cb);
