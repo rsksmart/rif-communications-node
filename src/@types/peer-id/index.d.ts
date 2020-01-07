@@ -4,6 +4,7 @@ declare module "peer-id" {
   class PeerId {
     constructor(id: any, privKey: any, pubKey: any);
     toB58String: () => string;
+    toJSON: () => any;
   }
 
   class PeerIdWithIs extends PeerId {}

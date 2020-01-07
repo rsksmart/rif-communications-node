@@ -3,7 +3,6 @@
 import * as yargs from "yargs";
 
 import LevelStore from "datastore-level"; //Web-Browser compatible store
-import { createNode, createNodeFromJSON } from "./createNode";
 import Multiaddr from "multiaddr";
 
 const myArgs = yargs
@@ -30,11 +29,9 @@ const myArgs = yargs
   .default("nodes", 10) // ONlY for test scenario
   .default("algorithm", "DEFAULT")
   .default("ofuscate", true)
-  .default("passphrase", "pass").argv;
+  .default("passphrase", "12345678900987654321").argv;
 
-const datastore = new LevelStore("./node-keystore", {
-  db: require("level")
-});
+const store = new LevelStore("./node-keystore");
 
 function addWebRTCMultiaddress(peerInfo: any): void {
   const addr = new Multiaddr(
@@ -55,4 +52,4 @@ function addSocketMultiaddress(peerInfo: any): void {
   peerInfo.multiaddrs.add(addr);
 }
 
-export { addSocketMultiaddress, addWebRTCMultiaddress, myArgs, datastore };
+export { addSocketMultiaddress, addWebRTCMultiaddress, myArgs, store };
