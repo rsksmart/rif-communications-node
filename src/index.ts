@@ -4,7 +4,7 @@ import { createNode, createNodeFromPrivateKey } from "./modules/createNode";
 import cryptoUtil from "libp2p-crypto";
 import Multiaddr from "multiaddr";
 import multihashingAsync from "multihashing-async";
-import { myArgs, keychain } from "./modules/nodesConf";
+import { myArgs, keystore } from "./modules/nodesConf";
 import { CommandLineChat } from "./modules/chatClient";
 import logger from "./logger";
 
@@ -18,6 +18,15 @@ function mainProcess() {
   async.waterfall(
     [
       (cb: () => void) => {
+        //------------------------createKey-------------------------------------------
+        //----[true]----
+        //The user wants a new peerId (new secp256k1 keypair for the peer node)
+        //the key is securely saved on the keystore using the provided passphrase and keyname
+        //----[false]----
+        //The user wants to reuse their node credentials
+        //the key is obtained from the secure keystore, using the provided passhprase and keyname
+        //-----------------------------------------------------------------------------
+        console.log("Create key is: " + myArgs.createKey);
         myArgs.createKey
           ? createNode(keyname, cb)
           : createNodeFromPrivateKey(keyname, cb);
@@ -51,11 +60,6 @@ function mainProcess() {
           logger.info("---------------------------");
           logger.info("PUBLIC KEY");
           console.log(node.peerInfo.id._pubKey);
-          keychain.listKeys().then((keys: any) => {
-            console.log(keys);
-          });
-
-          //TODO PARECE QUE EL IMPORT PEER NO FUNCIONA EN EL KEYCHAIN!!
 
           logger.info(
             cryptoUtil.keys

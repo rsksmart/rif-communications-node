@@ -9,12 +9,13 @@ import {
   myArgs,
   addSocketMultiaddress,
   addWebRTCMultiaddress,
-  keychain
+  keystore
 } from "./nodesConf";
 import { waterfall } from "async";
-import Keychain from "libp2p-keychain";
 import logger from "../logger";
 import Libp2p from "libp2p";
+import DS from "interface-datastore";
+import { exportKey, decryptPrivateKey } from "./crypto";
 
 const generateKey = myArgs.createKey;
 
@@ -97,19 +98,32 @@ export function createNodeFromPublicKey(
 export function createNodeFromPrivateKey(keyname: string, callback: any) {
   let node: any;
 
+  console.log("LOADING KEY FROM STORE");
   waterfall(
     [
       async (cb: (arg0: Error | null, arg1: any) => void) => {
         if (myArgs.keystore !== "") {
-          //Store new peerId JSON encrypted using key stored in keystore
-          const privKey: string = await keychain._getPrivateKey(keyname);
-          cb(null, privKey);
+          const dbKey = new DS.Key("/privKeys/" + keyname);
+          const exists = await keystore.has(dbKey);
+          if (!exists) {
+            console.log("Key does not exist in the keystore");
+            cb(new Error(keyname + " does not exist in the keystore"), null);
+          } else {
+            const res = await keystore.get(dbKey);
+            cb(null, res.toString());
+          }
         } else {
+          console.log("KeyStore is mandatory when loading a key");
           cb(new Error("KeyStore is mandatory when loading a key"), null);
         }
       },
       (privKey: string, cb: any) => {
-        createFromPrivKey(privKey, cb);
+        console.log("The private key is");
+
+        //TODO DECRYPT KEY
+        console.log(privKey);
+        const decryptedPrivKey = decryptPrivateKey(privKey, myArgs.passphrase);
+        createFromPrivKey(decryptedPrivKey, cb);
       },
       (peerId: any, cb: any) => {
         create(peerId, cb);
@@ -155,6 +169,7 @@ export function createNode(
   callback: (arg0: Error | null, arg1: any) => void
 ) {
   let node: any;
+  console.log("CREATING FRESH KEY");
 
   if (typeof keyname === "function") {
     callback = keyname;
@@ -170,10 +185,37 @@ export function createNode(
           cb(null, null);
         }
       },
-      (peerId: any, cb: any) => {
-        if (myArgs.keystore !== "") {
+      async (peerId: any, cb: any) => {
+        if (myArgs.keystore !== "" && keyname !== undefined) {
           //Store new peerId JSON encrypted using key stored in keystore
-          keychain.importPeer(keyname, peerId);
+          const dbKey = new DS.Key("/privKeys/" + keyname);
+          const exists = await keystore.has(dbKey);
+          if (exists) {
+            cb(new Error(keyname + " already exists in the keystore"), null);
+          } else {
+            console.log("Storing key in keystore");
+            const batch = keystore.batch();
+            const privKeyEnc = await exportKey(
+              peerId.privKey,
+              myArgs.passphrase
+            );
+            console.log("Putting key in db");
+            console.log("Key:");
+            console.log(dbKey);
+            console.log("Encrypted private key");
+            console.log(privKeyEnc);
+            console.log("Password: ");
+            console.log(myArgs.passphrase);
+            batch.put(dbKey, privKeyEnc);
+            console.log("Put successfull");
+            try {
+              await batch.commit();
+            } catch (error) {
+              console.log(error);
+            }
+
+            console.log("Commit successfull");
+          }
         }
         cb(null, peerId);
       },
