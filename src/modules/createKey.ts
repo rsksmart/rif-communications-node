@@ -2,7 +2,7 @@
 
 import { myArgs } from "./nodesConf";
 
-import { PeerIdWithIs, create, createWithKeyChain } from "peer-id";
+import { PeerIdWithIs, create } from "peer-id";
 
 const generateKey = myArgs.createKey;
 
