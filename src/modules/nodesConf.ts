@@ -23,7 +23,10 @@ const myArgs = yargs
     type: "string",
     description: "Address of a bootnode to connect to"
   })
-  .default("createKey", true)
+  .option("createKey", {
+    type: "boolean",
+    default: false
+  })
   .default("keystore", "./node-keystore")
   .default("automated", false)
   .default("nodes", 10) // ONlY for test scenario
@@ -31,7 +34,7 @@ const myArgs = yargs
   .default("ofuscate", true)
   .default("passphrase", "12345678900987654321").argv;
 
-const store = new LevelStore("./node-keystore");
+const keystore = new LevelStore("./node-keystore");
 
 function addWebRTCMultiaddress(peerInfo: any): void {
   const addr = new Multiaddr(
@@ -52,4 +55,4 @@ function addSocketMultiaddress(peerInfo: any): void {
   peerInfo.multiaddrs.add(addr);
 }
 
-export { addSocketMultiaddress, addWebRTCMultiaddress, myArgs, store };
+export { addSocketMultiaddress, addWebRTCMultiaddress, myArgs, keystore };
