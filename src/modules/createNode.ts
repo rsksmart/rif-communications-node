@@ -16,6 +16,7 @@ import logger from "../logger";
 import Libp2p from "libp2p";
 import DS from "interface-datastore";
 import { exportKey, decryptPrivateKey } from "./crypto";
+import bs58 from "bs58";
 
 const generateKey = myArgs.createKey;
 
@@ -118,14 +119,22 @@ export function createNodeFromPrivateKey(keyname: string, callback: any) {
         }
       },
       (privKey: string, cb: any) => {
-        console.log("The private key is");
+        console.log("The encripted private key is");
 
         //TODO DECRYPT KEY
         console.log(privKey);
         const decryptedPrivKey = decryptPrivateKey(privKey, myArgs.passphrase);
-        createFromPrivKey(decryptedPrivKey, cb);
+        console.log("The decrypted private key is");
+        console.log(decryptedPrivKey);
+        try {
+          createFromPrivKey(decryptedPrivKey, cb);
+        } catch (error) {
+          console.log(error);
+        }
       },
       (peerId: any, cb: any) => {
+        console.log("Your peer id");
+        console.log(peerId);
         create(peerId, cb);
       },
       (peerInfo: any, cb: any) => {
@@ -193,28 +202,28 @@ export function createNode(
           if (exists) {
             cb(new Error(keyname + " already exists in the keystore"), null);
           } else {
-            console.log("Storing key in keystore");
             const batch = keystore.batch();
             const privKeyEnc = await exportKey(
               peerId.privKey,
               myArgs.passphrase
             );
-            console.log("Putting key in db");
-            console.log("Key:");
-            console.log(dbKey);
+            console.log("<========Putting key in db========>");
+            console.log("DB entry keyname:");
+            console.log(bs58.encode(dbKey.toBuffer()));
+            console.log("Cleartext private key");
+            console.log(bs58.encode(peerId.privKey.bytes));
             console.log("Encrypted private key");
             console.log(privKeyEnc);
             console.log("Password: ");
             console.log(myArgs.passphrase);
             batch.put(dbKey, privKeyEnc);
-            console.log("Put successfull");
             try {
               await batch.commit();
             } catch (error) {
               console.log(error);
             }
 
-            console.log("Commit successfull");
+            console.log("</=======Putting key in db========>");
           }
         }
         cb(null, peerId);
