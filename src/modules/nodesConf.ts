@@ -10,29 +10,54 @@ const myArgs = yargs
     type: "number",
     default: 0
   })
-  .default("chatClient", false)
-  .default("host", "127.0.0.1")
-  .default("port", "9090")
+  .option("chatClient", {
+    type: "boolean",
+    default: false
+  })
   .option("webrtc", {
     type: "boolean",
     default: false
   })
-  .default("keyname", "defaultkeyname")
-  .default("keytype", "secp256k1")
   .option("bootNodeAddr", {
     type: "string",
     description: "Address of a bootnode to connect to"
   })
   .option("createKey", {
     type: "boolean",
-    default: false
+    default: false,
+    description:
+      "[true]: The user wants a new peerId (new keypair for the peer node)" +
+      "the key is securely saved on the keystore using the provided passphrase and keyname" +
+      "[false]: The user wants to reuse their node credentials" +
+      "the key is obtained from the secure keystore, using the provided passhprase and keyname"
   })
+  .option("ofuscate", {
+    type: "boolean",
+    default: true,
+    description: "Ofuscate sender address"
+  })
+  .option("automated", { type: "boolean", defaul: false })
+  .option("keyname", {
+    type: "string",
+    default: "defaultkeyname",
+    description:
+      "name of the key to use from the keychain to authenticate. If createKey is true " +
+      " then this is the name that will be used to store the new key in the keychain"
+  })
+  .default("keytype", "secp256k1")
+  .default("host", "127.0.0.1")
+  .default("port", "9090")
   .default("keystore", "./node-keystore")
-  .default("automated", false)
   .default("nodes", 10) // ONlY for test scenario
   .default("algorithm", "DEFAULT")
-  .default("ofuscate", true)
-  .default("passphrase", "12345678900987654321").argv;
+  .option("passphrase", {
+    type: "string",
+    demandOption: true,
+    alias: "pwd",
+    description:
+      "password to access the node, it must be the one corresponding to the keyname." +
+      "In case createKey is true, then is the password that will be used for that keyname"
+  }).argv;
 
 const keystore = new LevelStore("./node-keystore");
 
