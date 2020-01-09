@@ -3,6 +3,7 @@ const forge = require("node-forge/lib/forge");
 var pki = (forge.pki = forge.pki || {});
 var oids = pki.oids;
 const asn1 = require("node-forge/lib/asn1");
+const ecc = require("libp2p-crypto-secp256k1");
 
 // validator for an EncryptedPrivateKeyInfo structure
 // Note: Currently only works w/algorithm params
@@ -158,9 +159,8 @@ function createPbkdf2Params(
  *
  * @return the ASN.1 EncryptedPrivateKeyInfo.
  */
-function encryptPrivateKeyInfo(obj: any, password: string, options: any) {
+function encryptPrivateKeyInfo(keyObj: any, password: string, options: any) {
   // set default options
-  console.log("ENCRYPTING PRIVATE KEY");
 
   options = options || {};
   options.saltSize = options.saltSize || 8;
@@ -214,21 +214,24 @@ function encryptPrivateKeyInfo(obj: any, password: string, options: any) {
     // get PRF message digest
 
     var prfAlgorithm = "hmacWith" + options.prfAlgorithm.toUpperCase();
-    console.log("md");
 
     var md = prfAlgorithmToMessageDigest(prfAlgorithm);
 
     // encrypt private key using pbe SHA-1 and AES/DES
-    console.log("dk");
     var dk = forge.pkcs5.pbkdf2(password, salt, count, dkLen, md);
-    console.log("iv");
 
     var iv = forge.random.getBytesSync(ivLen);
-    console.log("cipher");
 
+    console.log("key");
+    console.log(keyObj.bytes);
+    const keyBuffer = new forge.util.ByteBuffer(keyObj.bytes);
+
+    console.log("payload der");
+    console.log(keyBuffer);
     var cipher = cipherFn(dk);
     cipher.start(iv);
-    cipher.update(obj);
+    cipher.update(keyBuffer);
+
     cipher.finish();
     encryptedData = cipher.output.getBytes();
 
@@ -280,8 +283,9 @@ function encryptPrivateKeyInfo(obj: any, password: string, options: any) {
     var dk = pki.pbe.generatePkcs12Key(password, saltBytes, 1, count, dkLen);
     var iv = pki.pbe.generatePkcs12Key(password, saltBytes, 2, count, dkLen);
     var cipher = forge.des.createEncryptionCipher(dk);
+    const keyBuffer = new forge.util.ByteBuffer(keyObj.bytes);
     cipher.start(iv);
-    cipher.update(obj);
+    cipher.update(keyBuffer);
     cipher.finish();
     encryptedData = cipher.output.getBytes();
 
@@ -342,32 +346,21 @@ function encryptPrivateKeyInfo(obj: any, password: string, options: any) {
  * @return the RSA key on success, null on failure.
  */
 function decryptPrivateKey(pem: any, password: string) {
-  var rval = null;
+  console.log("PEM");
+  console.log(pem);
 
-  var msg = forge.pem.decode(pem)[0];
-
-  if (
-    msg.type !== "ENCRYPTED PRIVATE KEY" &&
-    msg.type !== "PRIVATE KEY" &&
-    msg.type !== "EC PRIVATE KEY"
-  ) {
-    var error = new Error(
-      "Could not convert private key from PEM; PEM header type " +
-        'is not "ENCRYPTED PRIVATE KEY", "PRIVATE KEY", or "EC PRIVATE KEY".'
-    );
-    //error.headerType = error;
-    throw error;
-  }
-  rval = msg.body;
+  var rval = pki.encryptedPrivateKeyFromPem(pem);
 
   //Legacy decryption is not used
-  rval = decryptPrivateKeyInfo(asn1.fromDer(rval), password);
+  console.log("DER");
+  console.log(rval);
 
-  if (rval !== null) {
-    rval = pki.privateKeyFromAsn1(rval);
-  }
+  rval = decryptPrivateKeyInfo(rval, password);
 
-  return rval;
+  console.log("ASN1");
+  console.log(rval);
+
+  return Buffer.from(rval.getBytes(), "binary");
 }
 
 /**
@@ -389,20 +382,27 @@ function decryptPrivateKeyInfo(obj: any, password: string) {
       "Cannot read encrypted private key. " +
         "ASN.1 object is not a supported EncryptedPrivateKeyInfo."
     );
+    console.log("Cannot read encrypted private key");
     //error.errors = errors;
     throw error;
   }
-
+  console.log("capture");
+  console.log(capture);
   // get cipher
   var oid = asn1.derToOid(capture.encryptionOid);
+  console.log("oid");
+  console.log(oid);
   var cipher = pki.pbe.getCipher(oid, capture.encryptionParams, password);
 
   // get encrypted data
   var encrypted = forge.util.createBuffer(capture.encryptedData);
-
+  console.log("Encrypted");
+  console.log(encrypted);
   cipher.update(encrypted);
   if (cipher.finish()) {
-    rval = asn1.fromDer(cipher.output);
+    console.log("der");
+    console.log(cipher.output);
+    rval = cipher.output;
   }
 
   return rval;
@@ -423,8 +423,6 @@ async function exportKey(
   // eslint-disable-line require-await
   let encrypted = null;
 
-  const buffer = new forge.util.ByteBuffer(key.marshal());
-
   if (format === "pkcs-8") {
     const options = {
       algorithm: "aes256",
@@ -433,7 +431,9 @@ async function exportKey(
       prfAlgorithm: "sha512"
     };
 
-    encrypted = encryptPrivateKeyInfo(buffer, password, options);
+    encrypted = encryptPrivateKeyInfo(key, password, options);
+    console.log("Export Key");
+    console.log(encrypted);
   } else {
     throw new Error(`Unknown export format '${format}'. Must be pkcs-8`);
   }
