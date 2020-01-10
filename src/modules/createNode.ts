@@ -71,6 +71,8 @@ function _buildNode(peerInfo: any, cb: any): any {
   return node;
 }
 
+//This peer won't have a private key, it's intended to generate an object representation
+//of a know peer (known by its public key)
 export function createNodeFromPublicKey(
   publicKey: Buffer,
   callback: (arg0: null, arg1: any) => void
@@ -96,56 +98,89 @@ export function createNodeFromPublicKey(
   );
 }
 
-export function createNodeFromPrivateKey(keyname: string, callback: any) {
+function decryptionPhase(privateKey: any, pass: string, cb: any) {
+  console.log("The encripted private key is");
+  console.log(privateKey);
+  let decryptedPrivKey;
+  if (pass !== "") {
+    decryptedPrivKey = decryptPrivateKey(privateKey, pass);
+  } else {
+    decryptedPrivKey = privateKey;
+  }
+  console.log("The decrypted private key is");
+  console.log(decryptedPrivKey);
+  try {
+    createFromPrivKey(decryptedPrivKey, cb);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export function createNodeFromPrivateKey(callback: any) {
   let node: any;
+  const keyname = myArgs.keyname;
 
-  console.log("LOADING KEY FROM STORE");
-  waterfall(
-    [
-      async (cb: (arg0: Error | null, arg1: any) => void) => {
-        if (myArgs.keystore !== "") {
-          const dbKey = new DS.Key("/privKeys/" + keyname);
-          const exists = await keystore.has(dbKey);
-          if (!exists) {
-            console.log("Key does not exist in the keystore");
-            cb(new Error(keyname + " does not exist in the keystore"), null);
-          } else {
-            const res = await keystore.get(dbKey);
-            cb(null, res.toString());
-          }
-        } else {
-          console.log("KeyStore is mandatory when loading a key");
-          cb(new Error("KeyStore is mandatory when loading a key"), null);
+  if (myArgs.privateKey !== "") {
+    console.log("Private key was provided via argument");
+    waterfall(
+      [
+        (cb: (arg0: Error | null, arg1: any) => void) => {
+          decryptionPhase(
+            Buffer.from(myArgs.privateKey, "base64"),
+            myArgs.passphrase,
+            cb
+          );
+        },
+        (peerId: any, cb: any) => {
+          console.log("Your peer id");
+          console.log(peerId);
+          create(peerId, cb);
+        },
+        (peerInfo: any, cb: any) => {
+          node = _buildNode(peerInfo, cb);
         }
-      },
-      (privKey: string, cb: any) => {
-        console.log("The encripted private key is");
-
-        //TODO DECRYPT KEY
-        console.log(privKey);
-        const decryptedPrivKey = decryptPrivateKey(privKey, myArgs.passphrase);
-        console.log("The decrypted private key is");
-        console.log(decryptedPrivKey);
-        try {
-          createFromPrivKey(decryptedPrivKey, cb);
-        } catch (error) {
-          console.log(error);
-        }
-      },
-      (peerId: any, cb: any) => {
-        console.log("Your peer id");
-        console.log(peerId);
-        create(peerId, cb);
-      },
-      (peerInfo: any, cb: any) => {
-        node = _buildNode(peerInfo, cb);
+      ],
+      (err: any) => {
+        if (err) throw err;
+        callback(undefined, node);
       }
-    ],
-    (err: any) => {
-      if (err) throw err;
-      callback(undefined, node);
-    }
-  );
+    );
+  } else {
+    console.log("LOADING KEY FROM STORE");
+    waterfall(
+      [
+        async (cb: (arg0: Error | null, arg1: any) => void) => {
+          if (myArgs.keystore !== "") {
+            const dbKey = new DS.Key("/privKeys/" + keyname);
+            const exists = await keystore.has(dbKey);
+            if (!exists) {
+              cb(new Error(keyname + " does not exist in the keystore"), null);
+            } else {
+              const res = await keystore.get(dbKey);
+              cb(null, res.toString());
+            }
+          } else {
+            cb(new Error("KeyStore is mandatory when loading a key"), null);
+          }
+        },
+        (privKey: string, cb: any) => {
+          decryptionPhase(privKey, myArgs.passphrase, cb);
+        },
+        (peerId: any, cb: any) => {
+          console.log("Your peer id");
+          console.log(peerId);
+          create(peerId, cb);
+        },
+        (peerInfo: any, cb: any) => {
+          node = _buildNode(peerInfo, cb);
+        }
+      ],
+      (err: any) => {
+        if (err) throw err;
+        callback(undefined, node);
+      }
+    );
+  }
 }
 
 export function createNodeFromJSON(
@@ -203,6 +238,7 @@ export function createNode(
             cb(new Error(keyname + " already exists in the keystore"), null);
           } else {
             const batch = keystore.batch();
+            //If passphrase is blank then the key is not encrypted
             const privKeyEnc = await exportKey(
               peerId.privKey,
               myArgs.passphrase
@@ -211,9 +247,9 @@ export function createNode(
             console.log("DB entry keyname:");
             console.log(bs58.encode(dbKey.toBuffer()));
             console.log("Cleartext private key");
-            console.log(bs58.encode(peerId.privKey.bytes));
-            console.log("Encrypted private key");
-            console.log(privKeyEnc);
+            console.log(Buffer.from(peerId.privKey.bytes).toString("base64"));
+            console.log("Encrypted private key (base 64)");
+            console.log(Buffer.from(privKeyEnc).toString("base64"));
             console.log("Password: ");
             console.log(myArgs.passphrase);
             batch.put(dbKey, privKeyEnc);
