@@ -411,7 +411,8 @@ function decryptPrivateKeyInfo(obj: any, password: string) {
 /**
  * Exports the key into a password protected PEM format
  *
- * @param {string} password - The password to read the encrypted PEM
+ * @param {string} password - The password to read the encrypted PEM.
+ * If the password is blank or null then no encryption is used
  * @param {string} [format] - Defaults to 'pkcs-8'.
  * @returns {KeyInfo}
  */
@@ -420,25 +421,29 @@ async function exportKey(
   password: string,
   format: string = "pkcs-8"
 ) {
-  // eslint-disable-line require-await
-  let encrypted = null;
+  if (password !== "") {
+    // eslint-disable-line require-await
+    let encrypted = null;
 
-  if (format === "pkcs-8") {
-    const options = {
-      algorithm: "aes256",
-      count: 10000,
-      saltSize: 128 / 8,
-      prfAlgorithm: "sha512"
-    };
+    if (format === "pkcs-8") {
+      const options = {
+        algorithm: "aes256",
+        count: 10000,
+        saltSize: 128 / 8,
+        prfAlgorithm: "sha512"
+      };
 
-    encrypted = encryptPrivateKeyInfo(key, password, options);
-    console.log("Export Key");
-    console.log(encrypted);
+      encrypted = encryptPrivateKeyInfo(key, password, options);
+      console.log("Export Key");
+      console.log(encrypted);
+    } else {
+      throw new Error(`Unknown export format '${format}'. Must be pkcs-8`);
+    }
+
+    return pki.encryptedPrivateKeyToPem(encrypted);
   } else {
-    throw new Error(`Unknown export format '${format}'. Must be pkcs-8`);
+    return key.bytes;
   }
-
-  return pki.encryptedPrivateKeyToPem(encrypted);
 }
 
 export { exportKey, decryptPrivateKey };
