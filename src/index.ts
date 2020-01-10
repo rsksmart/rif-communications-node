@@ -20,7 +20,7 @@ function mainProcess() {
       (cb: () => void) => {
         myArgs.createKey
           ? createNode(keyname, cb)
-          : createNodeFromPrivateKey(keyname, cb);
+          : createNodeFromPrivateKey(cb);
       }
     ],
     (err: Error | null | undefined, node: any) => {

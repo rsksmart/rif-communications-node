@@ -50,9 +50,17 @@ const myArgs = yargs
   .default("keystore", "./node-keystore")
   .default("nodes", 10) // ONlY for test scenario
   .default("algorithm", "DEFAULT")
+  .option("privateKey", {
+    type: "string",
+    alias: "private-key",
+    default: "",
+    description:
+      "The private key data, if passphrase is provided then it's treated as an encrypted" +
+      " key following pkcs8 standard"
+  })
   .option("passphrase", {
     type: "string",
-    demandOption: true,
+    default: "",
     alias: "pwd",
     description:
       "password to access the node, it must be the one corresponding to the keyname." +
