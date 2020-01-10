@@ -1,6 +1,6 @@
 // Create a node/peer instance
 
-import { WebRTCBundle, WebSocketBundle } from "./wRTCbundle";
+import { WebRTCBundle, WebSocketBundle } from 'rif-communications'
 
 import { create } from "peer-info";
 import { createFromPrivKey, createFromPubKey, createFromJSON } from "peer-id";
