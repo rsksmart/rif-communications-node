@@ -18,8 +18,6 @@ import DS from "interface-datastore";
 import { exportKey, decryptPrivateKey } from "./crypto";
 import bs58 from "bs58";
 
-const generateKey = myArgs.createKey;
-
 function _registerNode(node: any, cb: any) {
   node.on("peer", (peerInfo: any) => {
     logger.info(peerInfo);
@@ -99,26 +97,24 @@ export function createNodeFromPublicKey(
 }
 
 function decryptionPhase(privateKey: any, pass: string, cb: any) {
-  console.log("The encripted private key is");
-  console.log(privateKey);
   let decryptedPrivKey;
   if (pass !== "") {
     decryptedPrivKey = decryptPrivateKey(privateKey, pass);
   } else {
-    decryptedPrivKey = privateKey;
+    //Convert from binary, which is the format used by the store
+    decryptedPrivKey = Buffer.from(privateKey, "binary");
   }
-  console.log("The decrypted private key is");
-  console.log(decryptedPrivKey);
+
   try {
     createFromPrivKey(decryptedPrivKey, cb);
   } catch (error) {
+    console.log("ERROR IN DECRYPTION PHASE");
     console.log(error);
   }
 }
 
 export function createNodeFromPrivateKey(callback: any) {
   let node: any;
-  const keyname = myArgs.keyname;
 
   if (myArgs.privateKey !== "") {
     console.log("Private key was provided via argument");
@@ -127,7 +123,7 @@ export function createNodeFromPrivateKey(callback: any) {
         (cb: (arg0: Error | null, arg1: any) => void) => {
           decryptionPhase(
             Buffer.from(myArgs.privateKey, "base64"),
-            myArgs.passphrase,
+            myArgs.passphrase == undefined ? "" : myArgs.passphrase,
             cb
           );
         },
@@ -151,10 +147,13 @@ export function createNodeFromPrivateKey(callback: any) {
       [
         async (cb: (arg0: Error | null, arg1: any) => void) => {
           if (myArgs.keystore !== "") {
-            const dbKey = new DS.Key("/privKeys/" + keyname);
+            const dbKey = new DS.Key("/privKeys/" + myArgs.keyname);
             const exists = await keystore.has(dbKey);
             if (!exists) {
-              cb(new Error(keyname + " does not exist in the keystore"), null);
+              cb(
+                new Error(myArgs.keyname + " does not exist in the keystore"),
+                null
+              );
             } else {
               const res = await keystore.get(dbKey);
               cb(null, res.toString());
@@ -164,7 +163,11 @@ export function createNodeFromPrivateKey(callback: any) {
           }
         },
         (privKey: string, cb: any) => {
-          decryptionPhase(privKey, myArgs.passphrase, cb);
+          decryptionPhase(
+            privKey,
+            myArgs.passphrase == undefined ? "" : myArgs.passphrase,
+            cb
+          );
         },
         (peerId: any, cb: any) => {
           console.log("Your peer id");
@@ -208,40 +211,36 @@ export function createNodeFromJSON(
   );
 }
 
-export function createNode(
-  keyname: any,
-  callback: (arg0: Error | null, arg1: any) => void
-) {
+export function createNode(callback: (arg0: Error | null, arg1: any) => void) {
   let node: any;
   console.log("CREATING FRESH KEY");
 
-  if (typeof keyname === "function") {
-    callback = keyname;
-    keyname = undefined;
+  if (typeof myArgs.keyname === "function") {
+    callback = myArgs.keyname;
+    myArgs.keyname = undefined;
   }
 
   waterfall(
     [
       (cb: (arg0: null, arg1: null) => void) => {
-        if (generateKey) {
-          createKey(keyname, cb);
-        } else {
-          cb(null, null);
-        }
+        createKey(myArgs.keyname, cb);
       },
       async (peerId: any, cb: any) => {
-        if (myArgs.keystore !== "" && keyname !== undefined) {
+        if (myArgs.keystore !== "" && myArgs.keyname !== undefined) {
           //Store new peerId JSON encrypted using key stored in keystore
-          const dbKey = new DS.Key("/privKeys/" + keyname);
+          const dbKey = new DS.Key("/privKeys/" + myArgs.keyname);
           const exists = await keystore.has(dbKey);
           if (exists) {
-            cb(new Error(keyname + " already exists in the keystore"), null);
+            cb(
+              new Error(myArgs.keyname + " already exists in the keystore"),
+              null
+            );
           } else {
             const batch = keystore.batch();
             //If passphrase is blank then the key is not encrypted
             const privKeyEnc = await exportKey(
               peerId.privKey,
-              myArgs.passphrase
+              myArgs.passphrase == undefined ? "" : myArgs.passphrase
             );
             console.log("<========Putting key in db========>");
             console.log("DB entry keyname:");
@@ -265,8 +264,7 @@ export function createNode(
         cb(null, peerId);
       },
       (peerId: any, cb: any) => {
-        if (generateKey) create(peerId, cb);
-        else create(cb);
+        create(peerId, cb);
       },
       (peerInfo: any, cb: any) => {
         node = _buildNode(peerInfo, cb);

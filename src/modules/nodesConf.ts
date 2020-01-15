@@ -24,7 +24,6 @@ const myArgs = yargs
   })
   .option("createKey", {
     type: "boolean",
-    default: false,
     description:
       "[true]: The user wants a new peerId (new keypair for the peer node)" +
       "the key is securely saved on the keystore using the provided passphrase and keyname" +
@@ -39,7 +38,6 @@ const myArgs = yargs
   .option("automated", { type: "boolean", defaul: false })
   .option("keyname", {
     type: "string",
-    default: "defaultkeyname",
     description:
       "name of the key to use from the keychain to authenticate. If createKey is true " +
       " then this is the name that will be used to store the new key in the keychain"
@@ -60,7 +58,6 @@ const myArgs = yargs
   })
   .option("passphrase", {
     type: "string",
-    default: "",
     alias: "pwd",
     description:
       "password to access the node, it must be the one corresponding to the keyname." +
