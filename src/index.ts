@@ -4,23 +4,88 @@ import { createNode, createNodeFromPrivateKey } from "./modules/createNode";
 import cryptoUtil from "libp2p-crypto";
 import Multiaddr from "multiaddr";
 import multihashingAsync from "multihashing-async";
-import { myArgs } from "./modules/nodesConf";
+import { myArgs, keystore } from "./modules/nodesConf";
 import { CommandLineChat } from "./modules/chatClient";
 import logger from "./logger";
+import { createInterface } from "readline";
+import DS from "interface-datastore";
 
-process.on("unhandledRejection", (reason, p) =>
-  logger.error("Unhandled Rejection at: Promise ", p, reason)
-);
+const rl = createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
-const keyname = myArgs.keyname;
+function askForCreateKey() {
+  if (myArgs.createKey == null) {
+    rl.question(
+      "Select an option [1] Create new Key  [2] Load key from store ",
+      option => {
+        if (option != "1" && option != "2") {
+          console.warn("Incorrect option");
+          askForCreateKey();
+        } else {
+          myArgs.createKey = option == "1" ? true : false;
+          askForKeyName();
+        }
+      }
+    );
+  } else {
+    askForKeyName();
+  }
+}
+
+function askForKeyName(): any {
+  if (myArgs.keyname == null) {
+    const text: string = myArgs.createKey
+      ? "Please enter the name of the new key to create: "
+      : "Please enter the name of the key to load from the keystore: ";
+    rl.question(text, async keyName => {
+      const dbKey = new DS.Key("/privKeys/" + keyName);
+      const exists = await keystore.has(dbKey);
+      if (myArgs.createKey && exists) {
+        console.warn("A key with the same name aleady exists in the keyStore");
+        askForKeyName();
+      } else if (!myArgs.createKey && !exists) {
+        console.warn("The provided keyname does not exist in the keystore");
+        askForKeyName();
+      } else {
+        myArgs.keyname = keyName;
+        askForPassword();
+      }
+    });
+  } else {
+    askForPassword();
+  }
+}
+
+function askForPassword(): any {
+  if (myArgs.passphrase == null) {
+    rl.question(
+      myArgs.createKey
+        ? "Please enter a password to encrypt your key (or empty string if no encryption is required)"
+        : "Please enter the password to decrypt the key (or empty string if key is not encrypted)",
+      password => {
+        if (password == "") {
+          console.warn(
+            myArgs.createKey
+              ? "Key will be stored in cleartext"
+              : "Key will be loaded as not encrypted"
+          );
+        }
+        myArgs.passphrase = password;
+        mainProcess();
+      }
+    );
+  } else {
+    mainProcess();
+  }
+}
 
 function mainProcess() {
   async.waterfall(
     [
       (cb: () => void) => {
-        myArgs.createKey
-          ? createNode(keyname, cb)
-          : createNodeFromPrivateKey(cb);
+        myArgs.createKey ? createNode(cb) : createNodeFromPrivateKey(cb);
       }
     ],
     (err: Error | null | undefined, node: any) => {
@@ -84,4 +149,9 @@ function mainProcess() {
   );
 }
 
-mainProcess();
+process.on("unhandledRejection", (reason, p) => {
+  logger.error("Unhandled Rejection at: Promise ", p, reason);
+  console.log(reason);
+});
+
+askForCreateKey();
