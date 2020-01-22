@@ -1,9 +1,12 @@
-const forge = require("node-forge/lib/forge");
+const forge = require("node-forge");
+import KeyEncoder from "key-encoder";
+
+const keyEncoder: KeyEncoder = new KeyEncoder("secp256k1");
+
 /* Password-based encryption implementation. */
-var pki = (forge.pki = forge.pki || {});
-var oids = pki.oids;
-const asn1 = require("node-forge/lib/asn1");
-const ecc = require("libp2p-crypto-secp256k1");
+const pki = forge.pki;
+const oids = pki.oids;
+const asn1 = forge.asn1;
 
 // validator for an EncryptedPrivateKeyInfo structure
 // Note: Currently only works w/algorithm params
@@ -222,12 +225,7 @@ function encryptPrivateKeyInfo(keyObj: any, password: string, options: any) {
 
     var iv = forge.random.getBytesSync(ivLen);
 
-    console.log("key");
-    console.log(keyObj.bytes);
-    const keyBuffer = new forge.util.ByteBuffer(keyObj.bytes);
-
-    console.log("payload der");
-    console.log(keyBuffer);
+    const keyBuffer = new forge.util.ByteBuffer(keyObj);
     var cipher = cipherFn(dk);
     cipher.start(iv);
     cipher.update(keyBuffer);
@@ -343,24 +341,16 @@ function encryptPrivateKeyInfo(keyObj: any, password: string, options: any) {
  * @param pem the PEM-formatted EncryptedPrivateKeyInfo to decrypt.
  * @param password the password to use.
  *
- * @return the RSA key on success, null on failure.
+ * @return the key on success, null on failure.
  */
 function decryptPrivateKey(pem: any, password: string) {
-  console.log("PEM");
-  console.log(pem);
-
   var rval = pki.encryptedPrivateKeyFromPem(pem);
 
-  //Legacy decryption is not used
-  console.log("DER");
-  console.log(rval);
+  rval = decryptPrivateKeyInfo(rval, password).toString();
 
-  rval = decryptPrivateKeyInfo(rval, password);
+  const rawPrivKey = keyEncoder.encodePrivate(rval, "der", "raw");
 
-  console.log("ASN1");
-  console.log(rval);
-
-  return Buffer.from(rval.getBytes(), "binary");
+  return Buffer.from(rawPrivKey, "hex");
 }
 
 /**
@@ -386,26 +376,30 @@ function decryptPrivateKeyInfo(obj: any, password: string) {
     //error.errors = errors;
     throw error;
   }
-  console.log("capture");
-  console.log(capture);
+
   // get cipher
   var oid = asn1.derToOid(capture.encryptionOid);
-  console.log("oid");
-  console.log(oid);
+
   var cipher = pki.pbe.getCipher(oid, capture.encryptionParams, password);
 
   // get encrypted data
   var encrypted = forge.util.createBuffer(capture.encryptedData);
-  console.log("Encrypted");
-  console.log(encrypted);
+
   cipher.update(encrypted);
   if (cipher.finish()) {
-    console.log("der");
-    console.log(cipher.output);
     rval = cipher.output;
   }
 
   return rval;
+}
+
+function createPrivateKeyInfo(peerId: any) {
+  const pkinfo = keyEncoder.encodePrivate(
+    peerId.privKey.bytes.toString("hex"),
+    "raw",
+    "der"
+  );
+  return pkinfo;
 }
 
 /**
@@ -417,7 +411,7 @@ function decryptPrivateKeyInfo(obj: any, password: string) {
  * @returns {KeyInfo}
  */
 async function exportKey(
-  key: any,
+  peerId: any,
   password: string,
   format: string = "pkcs-8"
 ) {
@@ -433,16 +427,16 @@ async function exportKey(
         prfAlgorithm: "sha512"
       };
 
-      encrypted = encryptPrivateKeyInfo(key, password, options);
-      console.log("Export Key");
-      console.log(encrypted);
+      //Create privateKeyInfo
+      let pkinfo = createPrivateKeyInfo(peerId);
+      encrypted = encryptPrivateKeyInfo(pkinfo, password, options);
     } else {
       throw new Error(`Unknown export format '${format}'. Must be pkcs-8`);
     }
 
     return pki.encryptedPrivateKeyToPem(encrypted);
   } else {
-    return key.bytes;
+    return peerId.privKey.bytes;
   }
 }
 

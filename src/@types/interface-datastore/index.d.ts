@@ -1,4 +1,4 @@
-import { datastore } from "../../modules/nodesConf";
+import LevelStore from "datastore-level"; //Web-Browser compatible store
 
 declare module "interface-datastore" {
   export interface Datastore<Value = Buffer> {
