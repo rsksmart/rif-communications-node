@@ -128,7 +128,7 @@ export function createNodeFromPrivateKey(callback: any) {
           );
         },
         (peerId: any, cb: any) => {
-          console.log("Your peer id");
+          //console.log("Your peer id");
           console.log(peerId);
           create(peerId, cb);
         },
@@ -142,7 +142,7 @@ export function createNodeFromPrivateKey(callback: any) {
       }
     );
   } else {
-    console.log("LOADING KEY FROM STORE");
+    //console.log("LOADING KEY FROM STORE");
     waterfall(
       [
         async (cb: (arg0: Error | null, arg1: any) => void) => {
@@ -170,8 +170,8 @@ export function createNodeFromPrivateKey(callback: any) {
           );
         },
         (peerId: any, cb: any) => {
-          console.log("Your peer id");
-          console.log(peerId);
+          //console.log("Your peer id");
+          //console.log(peerId);
           create(peerId, cb);
         },
         (peerInfo: any, cb: any) => {
@@ -213,7 +213,7 @@ export function createNodeFromJSON(
 
 export function createNode(callback: (arg0: Error | null, arg1: any) => void) {
   let node: any;
-  console.log("CREATING FRESH KEY");
+  //console.log("CREATING FRESH KEY");
 
   if (typeof myArgs.keyname === "function") {
     callback = myArgs.keyname;
@@ -239,10 +239,12 @@ export function createNode(callback: (arg0: Error | null, arg1: any) => void) {
             const batch = keystore.batch();
             //If passphrase is blank then the key is not encrypted
             const privKeyEnc = await exportKey(
-              peerId.privKey,
-              myArgs.passphrase == undefined ? "" : myArgs.passphrase
+              peerId,
+              myArgs.passphrase == undefined || myArgs.passphrase == null
+                ? ""
+                : myArgs.passphrase
             );
-            console.log("<========Putting key in db========>");
+            /*console.log("<========Putting key in db========>");
             console.log("DB entry keyname:");
             console.log(bs58.encode(dbKey.toBuffer()));
             console.log("Cleartext private key");
@@ -250,7 +252,7 @@ export function createNode(callback: (arg0: Error | null, arg1: any) => void) {
             console.log("Encrypted private key (base 64)");
             console.log(Buffer.from(privKeyEnc).toString("base64"));
             console.log("Password: ");
-            console.log(myArgs.passphrase);
+            console.log(myArgs.passphrase);*/
             batch.put(dbKey, privKeyEnc);
             try {
               await batch.commit();
@@ -258,7 +260,7 @@ export function createNode(callback: (arg0: Error | null, arg1: any) => void) {
               console.log(error);
             }
 
-            console.log("</=======Putting key in db========>");
+            //console.log("</=======Putting key in db========>");
           }
         }
         cb(null, peerId);
