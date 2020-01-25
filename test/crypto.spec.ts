@@ -1,62 +1,60 @@
 import { exportKey, decryptPrivateKey } from "../src/modules/crypto";
-import { createKey } from "../src/modules/createKey";
 import { createFromPrivKey } from "peer-id";
-
+import libp2p from "libp2p-crypto";
 import chai from "chai";
 import dirtyChai from "dirty-chai";
 import chaiAsPromised from "chai-as-promised";
 chai.config.includeStack = true; // turn on stack trace
-
 // Do not reorder these statements - https://github.com/chaijs/chai/issues/1298
 chai.use(chaiAsPromised);
 chai.use(dirtyChai);
 const expect = chai.expect;
-
 describe("crypto tests", function() {
   this.timeout(10 * 1000);
 
   let peerId: any;
-  //let privKeyBase64: string;
-  // let peerIdFromPrivKey: any;
+
+  //marshal()
+  const privKeyBase64 = "EEw9ThYZt+Rfq0LbRvgJ+xJpFH7C7uTWK/O2ka7GCOY=";
+
+  //In protobuff, including key type
+  /**
+  message PrivateKey {
+  required KeyType Type = 1;
+  required bytes Data = 2;
+}` 
+*/
+  //bytes getter
+  const privKeyProtoBase64 = "CAISIBBMPU4WGbfkX6tC20b4CfsSaRR+wu7k1ivztpGuxgjm";
+
+  const password = "123456789987654321";
 
   before(() => {
-    new Promise<void>((resolve, reject) => {
-      //Base64 representation of a secp256k1 private key in cleartext
-      //privKeyBase64 = "CAISIOHG0RD0BLoxKt4XtYY7yy8I+5c74cFXwSo+/h+rJ/Bz";
+    new Promise<void>(async (resolve, reject) => {
+      const privKey = await libp2p.keys.supportedKeys.secp256k1.unmarshalSecp256k1PrivateKey(
+        Buffer.from(privKeyBase64, "base64")
+      );
+      const privKeyProtobuffed = privKey.bytes.toString("base64");
 
-      //Generation of a peerId using secp256k1
-      createKey("keyname", async (error: any, peerID: any) => {
-        peerId = peerID;
-        expect(peerId).not.to.eq(null);
-        resolve();
-      });
+      expect(privKeyProtobuffed).to.eq(privKeyProtoBase64);
 
       //Generate peerId using the privateKey
-      /*createFromPrivKey(privKeyBase64, (error, peerIdObj) => {
+      createFromPrivKey(privKeyProtobuffed, (error, peerIdObj) => {
         expect(error).to.eq(null);
-        peerIdFromPrivKey = peerIdObj;
-      });*/
+        peerId = peerIdObj;
+      });
+
+      resolve();
     });
   });
 
   after(() => {
     peerId = null;
-    //privKeyBase64 = null;
   });
-
   it("export encrypted key using generated peerId", async () => {
-    let key = peerId.privKey.bytes;
-    let pemKey = await exportKey(peerId, "123456789987654321");
-    expect(pemKey).to.include("-----BEGIN ENCRYPTED PRIVATE KEY-----");
-    expect(pemKey).to.include("-----END ENCRYPTED PRIVATE KEY-----");
+    let pemKey = await exportKey(peerId, password);
+    let decryptedKey = await decryptPrivateKey(pemKey, password);
 
-    let decryptedKey = await decryptPrivateKey(pemKey, "123456789987654321");
-    expect(key.toString("base64")).to.eq(decryptedKey.toString("base64"));
-  });
-
-  it("export encrypted key using private key", async () => {
-    let pemKey = await exportKey(peerId, "123456789987654321");
-    expect(pemKey).to.include("-----BEGIN ENCRYPTED PRIVATE KEY-----");
-    expect(pemKey).to.include("-----END ENCRYPTED PRIVATE KEY-----");
+    expect(privKeyBase64).to.eq(decryptedKey.toString("base64"));
   });
 });
