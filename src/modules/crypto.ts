@@ -1,11 +1,11 @@
-const forge = require("node-forge");
-import KeyEncoder from "key-encoder";
+import KeyEncoder from 'key-encoder'
+const forge = require('node-forge')
 
-const keyEncoder: KeyEncoder = new KeyEncoder("secp256k1");
+const keyEncoder: KeyEncoder = new KeyEncoder('secp256k1')
 
 /* Password-based encryption implementation. */
-const pki = forge.pki;
-const asn1 = forge.asn1;
+const pki = forge.pki
+const asn1 = forge.asn1
 
 /**
  * Decrypts an  private key.
@@ -15,28 +15,29 @@ const asn1 = forge.asn1;
  *
  * @return the key on success, null on failure.
  */
-function decryptPrivateKey(pem: any, password: string) {
-  var rval = pki.encryptedPrivateKeyFromPem(pem);
-  rval = pki.decryptPrivateKeyInfo(rval, password);
+function decryptPrivateKey (pem: any, password: string) {
+  let rval = pki.encryptedPrivateKeyFromPem(pem)
+  rval = pki.decryptPrivateKeyInfo(rval, password)
 
-  const privKeyDer = new forge.util.ByteBuffer(rval.value[2].value);
+  const privKeyDer = new forge.util.ByteBuffer(rval.value[2].value)
 
-  const rawPrivKey = keyEncoder.encodePrivate(privKeyDer.toHex(), "der", "raw");
+  const rawPrivKey = keyEncoder.encodePrivate(privKeyDer.toHex(), 'der', 'raw')
 
-  return Buffer.from(rawPrivKey, "hex");
+  return Buffer.from(rawPrivKey, 'hex')
 }
 
-function generateRawKeyFromKeyInfo(privateKeyInfo: any) {
-  return keyEncoder.encodePrivate(privateKeyInfo, "pem", "raw");
+function generateRawKeyFromKeyInfo (privateKeyInfo: any) {
+  return keyEncoder.encodePrivate(privateKeyInfo, 'pem', 'raw')
 }
-function createPrivateKeyInfo(peerId: any) {
+
+function createPrivateKeyInfo (peerId: any) {
   const pkinfo = keyEncoder.encodePrivate(
-    peerId.privKey.marshal().toString("hex"),
-    "raw",
-    "der"
-  );
+    peerId.privKey.marshal().toString('hex'),
+    'raw',
+    'der'
+  )
 
-  //return asn1version;
+  // return asn1version;
   // PrivateKeyInfo
   return asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
     // version (0)
@@ -52,13 +53,13 @@ function createPrivateKeyInfo(peerId: any) {
         asn1.Class.UNIVERSAL,
         asn1.Type.OID,
         false,
-        asn1.oidToDer("1.2.840.10045.2.1").getBytes()
+        asn1.oidToDer('1.2.840.10045.2.1').getBytes()
       ),
       asn1.create(
         asn1.Class.UNIVERSAL,
         asn1.Type.OID,
         false,
-        asn1.oidToDer("1.3.132.0.10").getBytes()
+        asn1.oidToDer('1.3.132.0.10').getBytes()
       )
     ]),
     // PrivateKey
@@ -67,10 +68,10 @@ function createPrivateKeyInfo(peerId: any) {
       asn1.Type.OCTETSTRING,
       false,
       new forge.util.ByteBuffer(
-        Buffer.from(pkinfo, "hex").toString("binary")
+        Buffer.from(pkinfo, 'hex').toString('binary')
       ).getBytes()
     )
-  ]);
+  ])
 }
 
 /**
@@ -81,38 +82,38 @@ function createPrivateKeyInfo(peerId: any) {
  * @param {string} [format] - Defaults to 'pkcs-8'.
  * @returns {KeyInfo}
  */
-async function exportKey(
+async function exportKey (
   peerId: any,
   password: string,
-  format: string = "pkcs-8"
+  format = 'pkcs-8'
 ) {
-  if (password !== "") {
+  if (password !== '') {
     // eslint-disable-line require-await
-    let encrypted = null;
+    let encrypted = null
 
-    if (format === "pkcs-8") {
+    if (format === 'pkcs-8') {
       const options = {
-        algorithm: "aes256",
+        algorithm: 'aes256',
         count: 10000,
         saltSize: 128 / 8,
-        prfAlgorithm: "sha512"
-      };
+        prfAlgorithm: 'sha512'
+      }
 
-      //Create privateKeyInfo
-      let pkinfo = createPrivateKeyInfo(peerId);
-      encrypted = forge.pki.encryptPrivateKeyInfo(pkinfo, password, options);
+      // Create privateKeyInfo
+      const pkinfo = createPrivateKeyInfo(peerId)
+      encrypted = forge.pki.encryptPrivateKeyInfo(pkinfo, password, options)
     } else {
-      throw new Error(`Unknown export format '${format}'. Must be pkcs-8`);
+      throw new Error(`Unknown export format '${format}'. Must be pkcs-8`)
     }
 
-    return pki.encryptedPrivateKeyToPem(encrypted);
+    return pki.encryptedPrivateKeyToPem(encrypted)
   } else {
     return keyEncoder.encodePrivate(
-      peerId.privKey.marshal().toString("hex"),
-      "raw",
-      "pem"
-    );
+      peerId.privKey.marshal().toString('hex'),
+      'raw',
+      'pem'
+    )
   }
 }
 
-export { exportKey, decryptPrivateKey, generateRawKeyFromKeyInfo };
+export { exportKey, decryptPrivateKey, generateRawKeyFromKeyInfo }
