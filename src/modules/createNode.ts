@@ -14,9 +14,14 @@ import {
 import { waterfall } from "async";
 import logger from "../logger";
 import Libp2p from "libp2p";
+import libCrypto from "libp2p-crypto";
+
 import DS from "interface-datastore";
-import { exportKey, decryptPrivateKey } from "./crypto";
-import bs58 from "bs58";
+import {
+  exportKey,
+  decryptPrivateKey,
+  generateRawKeyFromKeyInfo
+} from "./crypto";
 
 function _registerNode(node: any, cb: any) {
   node.on("peer", (peerInfo: any) => {
@@ -96,17 +101,25 @@ export function createNodeFromPublicKey(
   );
 }
 
-function decryptionPhase(privateKey: any, pass: string, cb: any) {
+async function decryptionPhase(privateKey: any, pass: string, cb: any) {
   let decryptedPrivKey;
   if (pass !== "") {
     decryptedPrivKey = decryptPrivateKey(privateKey, pass);
   } else {
+    console.log("Loading plaintext");
     //Convert from binary, which is the format used by the store
-    decryptedPrivKey = Buffer.from(privateKey, "binary");
+    decryptedPrivKey = Buffer.from(
+      generateRawKeyFromKeyInfo(privateKey),
+      "hex"
+    );
   }
 
   try {
-    createFromPrivKey(decryptedPrivKey, cb);
+    console.log(decryptedPrivKey);
+    const privKey = await libCrypto.keys.supportedKeys.secp256k1.unmarshalSecp256k1PrivateKey(
+      decryptedPrivKey
+    );
+    createFromPrivKey(privKey.bytes, cb);
   } catch (error) {
     console.log("ERROR IN DECRYPTION PHASE");
     console.log(error);

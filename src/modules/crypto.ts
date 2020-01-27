@@ -26,6 +26,9 @@ function decryptPrivateKey(pem: any, password: string) {
   return Buffer.from(rawPrivKey, "hex");
 }
 
+function generateRawKeyFromKeyInfo(privateKeyInfo: any) {
+  return keyEncoder.encodePrivate(privateKeyInfo, "pem", "raw");
+}
 function createPrivateKeyInfo(peerId: any) {
   const pkinfo = keyEncoder.encodePrivate(
     peerId.privKey.marshal().toString("hex"),
@@ -112,4 +115,4 @@ async function exportKey(
   }
 }
 
-export { exportKey, decryptPrivateKey };
+export { exportKey, decryptPrivateKey, generateRawKeyFromKeyInfo };
