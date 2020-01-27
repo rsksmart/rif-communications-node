@@ -6,6 +6,7 @@ import dirtyChai from "dirty-chai";
 import chaiAsPromised from "chai-as-promised";
 import cp from "child_process";
 import KeyEncoder from "key-encoder";
+import fs from "fs";
 const keyEncoder: KeyEncoder = new KeyEncoder("secp256k1");
 
 chai.config.includeStack = true; // turn on stack trace
@@ -75,9 +76,12 @@ describe("crypto tests", function() {
     //Encrypt the key using pkcs8 format
     let pemKey = await exportKey(peerId, password);
 
+    fs.writeFileSync("testFile.pem", pemKey);
     //Use OpenSSL to decrypt the key
-    const command =
-      "openssl ec -passin " + "pass:" + password + " <<< '" + pemKey + "'";
+    /*const command =
+      "openssl ec -passin " + "pass:" + password + " <<< '" + pemKey + "'";*/
+
+    const command = "openssl ec -in testFile.pem -passin " + "pass:" + password;
 
     const ecFormat = cp.execSync(command, { encoding: "utf-8" }); // the default is 'buffer'
 
@@ -85,7 +89,7 @@ describe("crypto tests", function() {
     const rawKey = keyEncoder.encodePrivate(ecFormat, "pem", "raw");
 
     //The raw keys should be the same, first we convert the rawKey to base64
-    //since keyEncoder returns an hex-encoded key
+    //since keyEncoder returns an hex-encoded
     expect(privKeyBase64).to.eq(Buffer.from(rawKey, "hex").toString("base64"));
   });
 });
