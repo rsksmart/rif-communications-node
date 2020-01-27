@@ -1,263 +1,266 @@
 // Create a node/peer instance
 
-import { WebRTCBundle, WebSocketBundle } from "./wRTCbundle";
+import { WebRTCBundle, WebSocketBundle } from './wRTCbundle'
 
-import { create } from "peer-info";
-import { createFromPrivKey, createFromPubKey, createFromJSON } from "peer-id";
-import { createKey } from "./createKey";
+import { create } from 'peer-info'
+import { createFromPrivKey, createFromPubKey, createFromJSON } from 'peer-id'
+import { createKey } from './createKey'
 import {
   myArgs,
   addSocketMultiaddress,
   addWebRTCMultiaddress,
   keystore
-} from "./nodesConf";
-import { waterfall } from "async";
-import logger from "../logger";
-import Libp2p from "libp2p";
-import libCrypto from "libp2p-crypto";
+} from './nodesConf'
+import { waterfall } from 'async'
+import logger from '../logger'
+import Libp2p from 'libp2p'
+import libCrypto from 'libp2p-crypto'
 
-import DS from "interface-datastore";
+import DS from 'interface-datastore'
 import {
   exportKey,
   decryptPrivateKey,
   generateRawKeyFromKeyInfo
-} from "./crypto";
+} from './crypto'
 
-function _registerNode(node: any, cb: any) {
-  node.on("peer", (peerInfo: any) => {
-    logger.info(peerInfo);
-  });
+function _registerNode (node: any, cb: any) {
+  node.on('peer', (peerInfo: any) => {
+    logger.info(peerInfo)
+  })
 
-  node.on("peer:discovery", (peerInfo: any) => {
-    logger.info("Discovered a peer from here: " + peerInfo.id.toB58String());
-  });
+  node.on('peer:discovery', (peerInfo: any) => {
+    logger.info('Discovered a peer from here: ' + peerInfo.id.toB58String())
+  })
 
-  node.on("peer:connect", (peerInfo: any) => {
-    const idStr = peerInfo.id.toB58String();
-    logger.info("Got connection to: " + idStr);
-  });
+  node.on('peer:connect', (peerInfo: any) => {
+    const idStr = peerInfo.id.toB58String()
+    logger.info('Got connection to: ' + idStr)
+  })
 
-  node.on("peer:disconnect", (peerInfo: any) => {
-    const idStr = peerInfo.id.toB58String();
-    logger.info("Got discconected from %s ", idStr);
-  });
+  node.on('peer:disconnect', (peerInfo: any) => {
+    const idStr = peerInfo.id.toB58String()
+    logger.info('Got discconected from %s ', idStr)
+  })
 
   node.dht.registerListener(
-    "kad-msg-received",
+    'kad-msg-received',
     (kadMsg: any) => {
-      logger.info("[" + kadMsg.sender + "] -> " + kadMsg.msg);
+      logger.info('[' + kadMsg.sender + '] -> ' + kadMsg.msg)
     },
     () => {
-      node.start(cb);
+      node.start(cb)
     }
-  );
+  )
 }
 
-function _buildNode(peerInfo: any, cb: any): any {
-  let node: Libp2p;
+function _buildNode (peerInfo: any, cb: any): any {
+  let node: Libp2p
 
   if (myArgs.webrtc) {
-    addWebRTCMultiaddress(peerInfo);
+    addWebRTCMultiaddress(peerInfo)
 
     node = new WebRTCBundle({
       peerInfo
-    });
+    })
 
-    logger.log(peerInfo);
+    logger.log(peerInfo)
   } else {
-    addSocketMultiaddress(peerInfo);
+    addSocketMultiaddress(peerInfo)
     node = new WebSocketBundle({
       peerInfo
-    });
+    })
   }
-  _registerNode(node, cb);
-  return node;
+  _registerNode(node, cb)
+  return node
 }
 
-//This peer won't have a private key, it's intended to generate an object representation
-//of a know peer (known by its public key)
-export function createNodeFromPublicKey(
+// This peer won't have a private key, it's intended to generate an object representation
+// of a know peer (known by its public key)
+export function createNodeFromPublicKey (
   publicKey: Buffer,
   callback: (arg0: null, arg1: any) => void
 ) {
-  let node: any;
+  let node: any
 
   waterfall(
     [
       (cb: (arg0: Error, arg1: any) => void) => {
-        createFromPubKey(publicKey, cb);
+        createFromPubKey(publicKey, cb)
       },
       (peerId: any, cb: any) => {
-        create(peerId, cb);
+        create(peerId, cb)
       },
       (peerInfo: any, cb: any) => {
-        node = _buildNode(peerInfo, cb);
+        node = _buildNode(peerInfo, cb)
       }
     ],
     (err: any) => {
-      if (err) throw err;
-      callback(null, node);
+      if (err) throw err
+      callback(null, node)
     }
-  );
+  )
 }
 
-async function decryptionPhase(privateKey: any, pass: string, cb: any) {
-  let decryptedPrivKey;
-  if (pass !== "") {
-    decryptedPrivKey = decryptPrivateKey(privateKey, pass);
+async function decryptionPhase (privateKey: any, pass: string, cb: any) {
+  let decryptedPrivKey
+
+  if (pass !== '') {
+    decryptedPrivKey = decryptPrivateKey(privateKey, pass)
   } else {
-    console.log("Loading plaintext");
-    //Convert from binary, which is the format used by the store
+    console.log('Loading plaintext')
+    // Convert from binary, which is the format used by the store
     decryptedPrivKey = Buffer.from(
       generateRawKeyFromKeyInfo(privateKey),
-      "hex"
-    );
+      'hex'
+    )
   }
 
   try {
-    console.log(decryptedPrivKey);
+    console.log(decryptedPrivKey)
     const privKey = await libCrypto.keys.supportedKeys.secp256k1.unmarshalSecp256k1PrivateKey(
       decryptedPrivKey
-    );
-    createFromPrivKey(privKey.bytes, cb);
+    )
+    createFromPrivKey(privKey.bytes, cb)
   } catch (error) {
-    console.log("ERROR IN DECRYPTION PHASE");
-    console.log(error);
+    console.log('ERROR IN DECRYPTION PHASE')
+    console.log(error)
   }
 }
 
-export function createNodeFromPrivateKey(callback: any) {
-  let node: any;
+export function createNodeFromPrivateKey (callback: any) {
+  let node: any
 
-  if (myArgs.privateKey !== "") {
-    console.log("Private key was provided via argument");
+  if (myArgs.privateKey !== '') {
+    console.log('Private key was provided via argument')
     waterfall(
       [
         (cb: (arg0: Error | null, arg1: any) => void) => {
           decryptionPhase(
-            Buffer.from(myArgs.privateKey, "base64"),
-            myArgs.passphrase == undefined ? "" : myArgs.passphrase,
+            Buffer.from(myArgs.privateKey, 'base64'),
+            myArgs.passphrase == undefined ? '' : myArgs.passphrase,
             cb
-          );
+          )
         },
         (peerId: any, cb: any) => {
-          //console.log("Your peer id");
-          console.log(peerId);
-          create(peerId, cb);
+          // console.log("Your peer id");
+          console.log(peerId)
+          create(peerId, cb)
         },
         (peerInfo: any, cb: any) => {
-          node = _buildNode(peerInfo, cb);
+          node = _buildNode(peerInfo, cb)
         }
       ],
       (err: any) => {
-        if (err) throw err;
-        callback(undefined, node);
+        if (err) throw err
+        callback(undefined, node)
       }
-    );
+    )
   } else {
-    //console.log("LOADING KEY FROM STORE");
+    // console.log("LOADING KEY FROM STORE");
     waterfall(
       [
         async (cb: (arg0: Error | null, arg1: any) => void) => {
-          if (myArgs.keystore !== "") {
-            const dbKey = new DS.Key("/privKeys/" + myArgs.keyname);
-            const exists = await keystore.has(dbKey);
+          if (myArgs.keystore !== '') {
+            const dbKey = new DS.Key('/privKeys/' + myArgs.keyname)
+            const exists = await keystore.has(dbKey)
+
             if (!exists) {
               cb(
-                new Error(myArgs.keyname + " does not exist in the keystore"),
+                new Error(myArgs.keyname + ' does not exist in the keystore'),
                 null
-              );
+              )
             } else {
-              const res = await keystore.get(dbKey);
-              cb(null, res.toString());
+              const res = await keystore.get(dbKey)
+              cb(null, res.toString())
             }
           } else {
-            cb(new Error("KeyStore is mandatory when loading a key"), null);
+            cb(new Error('KeyStore is mandatory when loading a key'), null)
           }
         },
         (privKey: string, cb: any) => {
           decryptionPhase(
             privKey,
-            myArgs.passphrase == undefined ? "" : myArgs.passphrase,
+            myArgs.passphrase == undefined ? '' : myArgs.passphrase,
             cb
-          );
+          )
         },
         (peerId: any, cb: any) => {
-          //console.log("Your peer id");
-          //console.log(peerId);
-          create(peerId, cb);
+          // console.log("Your peer id");
+          // console.log(peerId);
+          create(peerId, cb)
         },
         (peerInfo: any, cb: any) => {
-          node = _buildNode(peerInfo, cb);
+          node = _buildNode(peerInfo, cb)
         }
       ],
       (err: any) => {
-        if (err) throw err;
-        callback(undefined, node);
+        if (err) throw err
+        callback(undefined, node)
       }
-    );
+    )
   }
 }
 
-export function createNodeFromJSON(
+export function createNodeFromJSON (
   nodeJSONObj: any,
   callback: (arg0: Error | undefined, arg1: any) => void
 ) {
-  let node: any;
+  let node: any
 
   waterfall(
     [
       (cb: (arg0: Error, arg1: any) => void) => {
-        createFromJSON(nodeJSONObj, cb);
+        createFromJSON(nodeJSONObj, cb)
       },
       (peerId: any, cb: any) => {
-        create(peerId, cb);
+        create(peerId, cb)
       },
       (peerInfo: any, cb: any) => {
-        node = _buildNode(peerInfo, cb);
+        node = _buildNode(peerInfo, cb)
       }
     ],
     (err: any) => {
-      if (err) throw err;
-      callback(undefined, node);
+      if (err) throw err
+      callback(undefined, node)
     }
-  );
+  )
 }
 
-export function createNode(callback: (arg0: Error | null, arg1: any) => void) {
-  let node: any;
-  //console.log("CREATING FRESH KEY");
+export function createNode (callback: (arg0: Error | null, arg1: any) => void) {
+  let node: any
+  // console.log("CREATING FRESH KEY");
 
-  if (typeof myArgs.keyname === "function") {
-    callback = myArgs.keyname;
-    myArgs.keyname = undefined;
+  if (typeof myArgs.keyname === 'function') {
+    callback = myArgs.keyname
+    myArgs.keyname = undefined
   }
 
   waterfall(
     [
       (cb: (arg0: null, arg1: null) => void) => {
-        createKey(myArgs.keyname, cb);
+        createKey(myArgs.keyname, cb)
       },
       async (peerId: any, cb: any) => {
-        if (myArgs.keystore !== "" && myArgs.keyname !== undefined) {
-          //Store new peerId JSON encrypted using key stored in keystore
-          const dbKey = new DS.Key("/privKeys/" + myArgs.keyname);
-          const exists = await keystore.has(dbKey);
+        if (myArgs.keystore !== '' && myArgs.keyname !== undefined) {
+          // Store new peerId JSON encrypted using key stored in keystore
+          const dbKey = new DS.Key('/privKeys/' + myArgs.keyname)
+          const exists = await keystore.has(dbKey)
+
           if (exists) {
             cb(
-              new Error(myArgs.keyname + " already exists in the keystore"),
+              new Error(myArgs.keyname + ' already exists in the keystore'),
               null
-            );
+            )
           } else {
-            const batch = keystore.batch();
-            //If passphrase is blank then the key is not encrypted
+            const batch = keystore.batch()
+            // If passphrase is blank then the key is not encrypted
             const privKeyEnc = await exportKey(
               peerId,
               myArgs.passphrase == undefined || myArgs.passphrase == null
-                ? ""
+                ? ''
                 : myArgs.passphrase
-            );
-            /*console.log("<========Putting key in db========>");
+            )
+            /* console.log("<========Putting key in db========>");
             console.log("DB entry keyname:");
             console.log(bs58.encode(dbKey.toBuffer()));
             console.log("Cleartext private key");
@@ -265,29 +268,29 @@ export function createNode(callback: (arg0: Error | null, arg1: any) => void) {
             console.log("Encrypted private key (base 64)");
             console.log(Buffer.from(privKeyEnc).toString("base64"));
             console.log("Password: ");
-            console.log(myArgs.passphrase);*/
-            batch.put(dbKey, privKeyEnc);
+            console.log(myArgs.passphrase); */
+            batch.put(dbKey, privKeyEnc)
             try {
-              await batch.commit();
+              await batch.commit()
             } catch (error) {
-              console.log(error);
+              console.log(error)
             }
 
-            //console.log("</=======Putting key in db========>");
+            // console.log("</=======Putting key in db========>");
           }
         }
-        cb(null, peerId);
+        cb(null, peerId)
       },
       (peerId: any, cb: any) => {
-        create(peerId, cb);
+        create(peerId, cb)
       },
       (peerInfo: any, cb: any) => {
-        node = _buildNode(peerInfo, cb);
+        node = _buildNode(peerInfo, cb)
       }
     ],
     (err: any) => {
-      if (err) throw err;
-      callback(null, node);
+      if (err) throw err
+      callback(null, node)
     }
-  );
+  )
 }

@@ -1,35 +1,35 @@
 // Generate the Key for Peers
 
-import { myArgs } from "./nodesConf";
+import { myArgs } from './nodesConf'
 
-import { PeerIdWithIs, create } from "peer-id";
+import { PeerIdWithIs, create } from 'peer-id'
 
-function createKey(keyname: any, callback: any) {
-  if (typeof keyname === "function") {
-    callback = keyname;
-    keyname = undefined;
+function createKey (keyname: any, callback: any) {
+  if (typeof keyname === 'function') {
+    callback = keyname
+    keyname = undefined
   }
 
-  let opts;
+  let opts
 
-  if (myArgs.keytype === "secp256k1") {
+  if (myArgs.keytype === 'secp256k1') {
     opts = {
       bits: 256,
-      keyType: "secp256k1"
-    };
+      keyType: 'secp256k1'
+    }
   } else {
     opts = {
       bits: 2048,
-      keyType: "RSA"
-    };
+      keyType: 'RSA'
+    }
   }
 
   create(opts, (err: Error, peer: PeerIdWithIs) => {
     if (err) {
-      throw err;
+      throw err
     }
-    callback(null, peer);
-  });
+    callback(null, peer)
+  })
 }
 
-export { createKey };
+export { createKey }
