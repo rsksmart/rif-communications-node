@@ -1,11 +1,9 @@
 import KeyEncoder from 'key-encoder'
-const forge = require('node-forge')
+import { util, pki, asn1 } from 'node-forge'
 
 const keyEncoder: KeyEncoder = new KeyEncoder('secp256k1')
 
 /* Password-based encryption implementation. */
-const pki = forge.pki
-const asn1 = forge.asn1
 
 /**
  * Decrypts an  private key.
@@ -19,7 +17,7 @@ function decryptPrivateKey (pem: any, password: string) {
   let rval = pki.encryptedPrivateKeyFromPem(pem)
   rval = pki.decryptPrivateKeyInfo(rval, password)
 
-  const privKeyDer = new forge.util.ByteBuffer(rval.value[2].value)
+  const privKeyDer = new util.ByteStringBuffer(rval.value[2].toString())
 
   const rawPrivKey = keyEncoder.encodePrivate(privKeyDer.toHex(), 'der', 'raw')
 
@@ -45,7 +43,7 @@ function createPrivateKeyInfo (peerId: any) {
       asn1.Class.UNIVERSAL,
       asn1.Type.INTEGER,
       false,
-      asn1.integerToDer(0).getBytes()
+      []
     ),
     // privateKeyAlgorithm
     asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
@@ -67,7 +65,7 @@ function createPrivateKeyInfo (peerId: any) {
       asn1.Class.UNIVERSAL,
       asn1.Type.OCTETSTRING,
       false,
-      new forge.util.ByteBuffer(
+      new util.ByteStringBuffer(
         Buffer.from(pkinfo, 'hex').toString('binary')
       ).getBytes()
     )
@@ -80,39 +78,36 @@ function createPrivateKeyInfo (peerId: any) {
  * @param {string} password - The password to read the encrypted PEM.
  * If the password is blank or null then no encryption is used
  * @param {string} [format] - Defaults to 'pkcs-8'.
- * @returns {KeyInfo}
  */
 function exportKey (
   peerId: any,
   password: string,
   format = 'pkcs-8'
-) {
+): Buffer {
   if (password !== '') {
     // eslint-disable-line require-await
     let encrypted = null
 
     if (format === 'pkcs-8') {
-      const options = {
+      // Create privateKeyInfo
+      const pkinfo = createPrivateKeyInfo(peerId)
+      encrypted = pki.encryptPrivateKeyInfo(pkinfo, password, {
         algorithm: 'aes256',
         count: 10000,
         saltSize: 128 / 8,
         prfAlgorithm: 'sha512'
-      }
-
-      // Create privateKeyInfo
-      const pkinfo = createPrivateKeyInfo(peerId)
-      encrypted = forge.pki.encryptPrivateKeyInfo(pkinfo, password, options)
+      })
     } else {
       throw new Error(`Unknown export format '${format}'. Must be pkcs-8`)
     }
 
-    return pki.encryptedPrivateKeyToPem(encrypted)
+    return Buffer.from(pki.encryptedPrivateKeyToPem(encrypted))
   } else {
-    return keyEncoder.encodePrivate(
+    return Buffer.from(keyEncoder.encodePrivate(
       peerId.privKey.marshal().toString('hex'),
       'raw',
       'pem'
-    )
+    ))
   }
 }
 
