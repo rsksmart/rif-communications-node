@@ -13,7 +13,7 @@ const keyEncoder: KeyEncoder = new KeyEncoder('secp256k1')
  *
  * @return the key on success, null on failure.
  */
-function decryptPrivateKey (pem: any, password: string) {
+function decryptPrivateKey (pem: pki.PEM, password: string) {
   let rval = pki.encryptedPrivateKeyFromPem(pem)
   rval = pki.decryptPrivateKeyInfo(rval, password)
 
@@ -43,7 +43,7 @@ function createPrivateKeyInfo (peerId: any) {
       asn1.Class.UNIVERSAL,
       asn1.Type.INTEGER,
       false,
-      []
+      '\0'
     ),
     // privateKeyAlgorithm
     asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
