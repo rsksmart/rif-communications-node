@@ -38,7 +38,6 @@
   },
   "dependencies": {
     "async": "^3.1.0",
-    "bs58": "^4.0.1",
     "datastore-level": "^0.14.0",
     "interface-datastore": "^0.8.0",
     "key-encoder": "^2.0.3",
@@ -53,6 +52,7 @@
     "multiaddr": "6.1.1",
     "multihash": "^0.1.0",
     "multihashing-async": "0.5.2",
+    "node-forge": "^0.9.1",
     "peer-id": "0.12.5",
     "peer-info": "0.15.1",
     "winston": "^3.2.1",
@@ -61,7 +61,6 @@
   },
   "devDependencies": {
     "@types/async": "^3.0.5",
-    "@types/bs58": "^4.0.1",
     "@types/chai": "^4.2.7",
     "@types/chai-as-promised": "^7.1.2",
     "@types/datastore-level": "^0.14.0",
