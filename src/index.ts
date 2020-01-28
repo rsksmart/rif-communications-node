@@ -15,73 +15,6 @@ const rl = createInterface({
   output: process.stdout
 })
 
-function askForCreateKey () {
-  if (myArgs.createKey == null) {
-    rl.question(
-      'Select an option [1] Create new Key  [2] Load key from store ',
-      option => {
-        if (option != '1' && option != '2') {
-          console.warn('Incorrect option')
-          askForCreateKey()
-        } else {
-          myArgs.createKey = option == '1'
-          askForKeyName()
-        }
-      }
-    )
-  } else {
-    askForKeyName()
-  }
-}
-
-function askForKeyName (): any {
-  if (myArgs.keyname == null) {
-    const text: string = myArgs.createKey
-      ? 'Please enter the name of the new key to create: '
-      : 'Please enter the name of the key to load from the keystore: '
-    rl.question(text, async keyName => {
-      const dbKey = new DS.Key('/privKeys/' + keyName)
-      const exists = await keystore.has(dbKey)
-
-      if (myArgs.createKey && exists) {
-        console.warn('A key with the same name aleady exists in the keyStore')
-        askForKeyName()
-      } else if (!myArgs.createKey && !exists) {
-        console.warn('The provided keyname does not exist in the keystore')
-        askForKeyName()
-      } else {
-        myArgs.keyname = keyName
-        askForPassword()
-      }
-    })
-  } else {
-    askForPassword()
-  }
-}
-
-function askForPassword (): any {
-  if (myArgs.passphrase == null) {
-    rl.question(
-      myArgs.createKey
-        ? 'Please enter a password to encrypt your key (or empty string if no encryption is required)'
-        : 'Please enter the password to decrypt the key (or empty string if key is not encrypted)',
-      password => {
-        if (password == '') {
-          console.warn(
-            myArgs.createKey
-              ? 'Key will be stored in cleartext'
-              : 'Key will be loaded as not encrypted'
-          )
-        }
-        myArgs.passphrase = password
-        mainProcess()
-      }
-    )
-  } else {
-    mainProcess()
-  }
-}
-
 function mainProcess () {
   async.waterfall(
     [
@@ -150,9 +83,75 @@ function mainProcess () {
   )
 }
 
+function askForPassword (): any {
+  if (myArgs.passphrase == null) {
+    rl.question(
+      myArgs.createKey
+        ? 'Please enter a password to encrypt your key (or empty string if no encryption is required)'
+        : 'Please enter the password to decrypt the key (or empty string if key is not encrypted)',
+      password => {
+        if (password === '') {
+          logger.warn(
+            myArgs.createKey
+              ? 'Key will be stored in cleartext'
+              : 'Key will be loaded as not encrypted'
+          )
+        }
+        myArgs.passphrase = password
+        mainProcess()
+      }
+    )
+  } else {
+    mainProcess()
+  }
+}
+
+function askForKeyName (): any {
+  if (myArgs.keyname == null) {
+    const text: string = myArgs.createKey
+      ? 'Please enter the name of the new key to create: '
+      : 'Please enter the name of the key to load from the keystore: '
+    rl.question(text, async keyName => {
+      const dbKey = new DS.Key('/privKeys/' + keyName)
+      const exists = await keystore.has(dbKey)
+
+      if (myArgs.createKey && exists) {
+        logger.warn('A key with the same name aleady exists in the keyStore')
+        askForKeyName()
+      } else if (!myArgs.createKey && !exists) {
+        logger.warn('The provided keyname does not exist in the keystore')
+        askForKeyName()
+      } else {
+        myArgs.keyname = keyName
+        askForPassword()
+      }
+    })
+  } else {
+    askForPassword()
+  }
+}
+
+function askForCreateKey () {
+  if (myArgs.createKey == null) {
+    rl.question(
+      'Select an option [1] Create new Key  [2] Load key from store ',
+      option => {
+        if (option !== '1' && option !== '2') {
+          logger.warn('Incorrect option')
+          askForCreateKey()
+        } else {
+          myArgs.createKey = option === '1'
+          askForKeyName()
+        }
+      }
+    )
+  } else {
+    askForKeyName()
+  }
+}
+
 process.on('unhandledRejection', (reason, p) => {
   logger.error('Unhandled Rejection at: Promise ', p, reason)
-  console.log(reason)
 })
 
 askForCreateKey()
