@@ -47,7 +47,7 @@ describe('crypto tests', function () {
     expect(privKeyProtobuffed).to.eq(privKeyProtoBase64)
 
     // Generate peerId object using the privateKey
-    createFromPrivKey(privKeyProtobuffed, (error, peerIdObj) => {
+    createFromPrivKey(privKeyProtobuffed, (error: Error, peerIdObj) => {
       expect(error).to.eq(null)
       peerId = peerIdObj
     })
@@ -57,19 +57,18 @@ describe('crypto tests', function () {
     peerId = null
   })
 
-  it('export encrypted key using generated peerId', async () => {
+  it('export encrypted key using generated peerId', () => {
     // Encrypt the key using pkcs8 format
     const pemKey = exportKey(peerId, password)
 
     // Decrypt the raw key
-    const decryptedKey =  decryptPrivateKey(pemKey.toString(), password)
+    const decryptedKey = decryptPrivateKey(pemKey.toString(), password)
 
     // The raw keys should be the same
     expect(privKeyBase64).to.eq(decryptedKey.toString('base64'))
-
   })
 
-  it('Decrypt key using OpenSSL', async () => {
+  it('Decrypt key using OpenSSL', () => {
     // Encrypt the key using pkcs8 format
     const pemKey = exportKey(peerId, password)
 
