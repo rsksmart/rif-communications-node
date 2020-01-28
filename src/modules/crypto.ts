@@ -82,7 +82,7 @@ function createPrivateKeyInfo (peerId: any) {
  * @param {string} [format] - Defaults to 'pkcs-8'.
  * @returns {KeyInfo}
  */
-async function exportKey (
+function exportKey (
   peerId: any,
   password: string,
   format = 'pkcs-8'
