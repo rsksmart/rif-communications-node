@@ -22,7 +22,6 @@ import {
   decryptPrivateKey,
   generateRawKeyFromKeyInfo
 } from './crypto'
-import { pki } from 'node-forge'
 
 function _registerNode (node: any, cb: any) {
   node.on('peer', (peerInfo: any) => {
@@ -102,7 +101,7 @@ export function createNodeFromPublicKey (
   )
 }
 
-async function decryptionPhase (privateKey: pki.PEM, pass: string, cb: any) {
+async function decryptionPhase (privateKey: string, pass: string, cb: any) {
   let decryptedPrivKey: string | Buffer
 
   if (pass !== '') {
@@ -176,7 +175,7 @@ export function createNodeFromPrivateKey (callback: any) {
             cb(new Error('KeyStore is mandatory when loading a key'), null)
           }
         },
-        (privKey: pki.PEM, cb: any) => {
+        (privKey: string, cb: any) => {
           decryptionPhase(
             privKey,
             myArgs.passphrase ? myArgs.passphrase : '',

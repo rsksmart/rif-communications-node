@@ -13,11 +13,14 @@ const keyEncoder: KeyEncoder = new KeyEncoder('secp256k1')
  *
  * @return the key on success, null on failure.
  */
-function decryptPrivateKey (pem: pki.PEM, password: string) {
-  let rval = pki.encryptedPrivateKeyFromPem(pem)
-  rval = pki.decryptPrivateKeyInfo(rval, password)
+function decryptPrivateKey (pem: string, password: string) {
+  const rval = pki.decryptPrivateKeyInfo(pki.encryptedPrivateKeyFromPem(pem), password)
 
-  const privKeyDer = new util.ByteStringBuffer(rval.value[2].toString())
+  if (typeof rval.value[2] === 'string') { throw new Error('Unexpected type string in the decrypted private key, expected ANS.1') }
+
+  if (typeof rval.value[2].value !== 'string') { throw new Error(`Inner part of the key should be a string, instead got ${typeof rval.value[2].value}`) }
+
+  const privKeyDer = new util.ByteStringBuffer(rval.value[2].value)
 
   const rawPrivKey = keyEncoder.encodePrivate(privKeyDer.toHex(), 'der', 'raw')
 
