@@ -22,6 +22,7 @@ import {
   decryptPrivateKey,
   generateRawKeyFromKeyInfo
 } from './crypto'
+import { pki } from 'node-forge'
 
 function _registerNode (node: any, cb: any) {
   node.on('peer', (peerInfo: any) => {
@@ -101,8 +102,8 @@ export function createNodeFromPublicKey (
   )
 }
 
-async function decryptionPhase (privateKey: any, pass: string, cb: any) {
-  let decryptedPrivKey
+async function decryptionPhase (privateKey: pki.PEM, pass: string, cb: any) {
+  let decryptedPrivKey: string | Buffer
 
   if (pass !== '') {
     decryptedPrivKey = decryptPrivateKey(privateKey, pass)
@@ -136,7 +137,7 @@ export function createNodeFromPrivateKey (callback: any) {
       [
         (cb: (arg0: Error | null, arg1: any) => void) => {
           decryptionPhase(
-            Buffer.from(myArgs.privateKey, 'base64'),
+            myArgs.privateKey,
             myArgs.passphrase ? myArgs.passphrase : '',
             cb
           )
@@ -175,7 +176,7 @@ export function createNodeFromPrivateKey (callback: any) {
             cb(new Error('KeyStore is mandatory when loading a key'), null)
           }
         },
-        (privKey: string, cb: any) => {
+        (privKey: pki.PEM, cb: any) => {
           decryptionPhase(
             privKey,
             myArgs.passphrase ? myArgs.passphrase : '',
@@ -249,10 +250,7 @@ export function createNode (callback: (arg0: Error | null, arg1: any) => void) {
           } else {
             const batch = keystore.batch()
             // If passphrase is blank then the key is not encrypted
-            const privKeyEnc = await exportKey(
-              peerId,
-              myArgs.passphrase ? myArgs.passphrase : ''
-            )
+            const privKeyEnc = exportKey(peerId, myArgs.passphrase ? myArgs.passphrase : '')
             batch.put(dbKey, privKeyEnc)
             try {
               await batch.commit()

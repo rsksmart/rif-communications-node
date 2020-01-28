@@ -59,18 +59,19 @@ describe('crypto tests', function () {
 
   it('export encrypted key using generated peerId', async () => {
     // Encrypt the key using pkcs8 format
-    const pemKey = await exportKey(peerId, password)
+    const pemKey = exportKey(peerId, password)
 
     // Decrypt the raw key
-    const decryptedKey = await decryptPrivateKey(pemKey, password)
+    const decryptedKey =  decryptPrivateKey(pemKey.toString(), password)
 
     // The raw keys should be the same
     expect(privKeyBase64).to.eq(decryptedKey.toString('base64'))
+
   })
 
   it('Decrypt key using OpenSSL', async () => {
     // Encrypt the key using pkcs8 format
-    const pemKey = await exportKey(peerId, password)
+    const pemKey = exportKey(peerId, password)
 
     fs.writeFileSync('testFile.pem', pemKey)
     // Use OpenSSL to decrypt the key

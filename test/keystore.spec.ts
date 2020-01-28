@@ -64,7 +64,7 @@ describe('crypto tests', function () {
     let exists = await keystore.has(dbKey)
     expect(exists).to.eq(false)
 
-    const pemKey = await exportKey(peerId, password)
+    const pemKey = exportKey(peerId, password)
 
     const batch = keystore.batch()
     batch.put(dbKey, pemKey)
