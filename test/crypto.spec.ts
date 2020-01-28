@@ -36,24 +36,20 @@ describe('crypto tests', function () {
   // Password used to encrypt the private key
   const password = '123456789987654321'
 
-  before(() => {
-    new Promise<void>(async (resolve, reject) => {
-      // Create a privateKey object using the raw key
-      const privKey = await libp2p.keys.supportedKeys.secp256k1.unmarshalSecp256k1PrivateKey(
-        Buffer.from(privKeyBase64, 'base64')
-      )
+  before(async () => {
+    // Create a privateKey object using the raw key
+    const privKey = await libp2p.keys.supportedKeys.secp256k1.unmarshalSecp256k1PrivateKey(
+      Buffer.from(privKeyBase64, 'base64')
+    )
 
-      // Double check the protobuffed version is OK (should be)
-      const privKeyProtobuffed = privKey.bytes.toString('base64')
-      expect(privKeyProtobuffed).to.eq(privKeyProtoBase64)
+    // Double check the protobuffed version is OK (should be)
+    const privKeyProtobuffed = privKey.bytes.toString('base64')
+    expect(privKeyProtobuffed).to.eq(privKeyProtoBase64)
 
-      // Generate peerId object using the privateKey
-      createFromPrivKey(privKeyProtobuffed, (error, peerIdObj) => {
-        expect(error).to.eq(null)
-        peerId = peerIdObj
-      })
-
-      resolve()
+    // Generate peerId object using the privateKey
+    createFromPrivKey(privKeyProtobuffed, (error, peerIdObj) => {
+      expect(error).to.eq(null)
+      peerId = peerIdObj
     })
   })
 

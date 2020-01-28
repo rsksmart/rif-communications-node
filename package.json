@@ -79,6 +79,7 @@
     "node": ">=10.0.0",
     "npm": ">=6.0.0"
   },
+  "types": "types/index.d.ts",
   "contributors": [
     "Adam Uhlíř <adam@uhlir.dev>",
     "Vojtech Simetka <vojtech@simetka.cz>",

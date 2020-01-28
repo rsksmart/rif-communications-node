@@ -107,7 +107,7 @@ async function decryptionPhase (privateKey: any, pass: string, cb: any) {
   if (pass !== '') {
     decryptedPrivKey = decryptPrivateKey(privateKey, pass)
   } else {
-    console.log('Loading plaintext')
+    logger.info('Loading plaintext')
     // Convert from binary, which is the format used by the store
     decryptedPrivKey = Buffer.from(
       generateRawKeyFromKeyInfo(privateKey),
@@ -116,14 +116,14 @@ async function decryptionPhase (privateKey: any, pass: string, cb: any) {
   }
 
   try {
-    console.log(decryptedPrivKey)
+    logger.info(decryptedPrivKey)
     const privKey = await libCrypto.keys.supportedKeys.secp256k1.unmarshalSecp256k1PrivateKey(
       decryptedPrivKey
     )
     createFromPrivKey(privKey.bytes, cb)
   } catch (error) {
-    console.log('ERROR IN DECRYPTION PHASE')
-    console.log(error)
+    logger.error('ERROR IN DECRYPTION PHASE')
+    logger.error(error)
   }
 }
 
@@ -131,19 +131,18 @@ export function createNodeFromPrivateKey (callback: any) {
   let node: any
 
   if (myArgs.privateKey !== '') {
-    console.log('Private key was provided via argument')
+    logger.info('Private key was provided via argument')
     waterfall(
       [
         (cb: (arg0: Error | null, arg1: any) => void) => {
           decryptionPhase(
             Buffer.from(myArgs.privateKey, 'base64'),
-            myArgs.passphrase == undefined ? '' : myArgs.passphrase,
+            myArgs.passphrase ? myArgs.passphrase : '',
             cb
           )
         },
         (peerId: any, cb: any) => {
-          // console.log("Your peer id");
-          console.log(peerId)
+          logger.info(peerId)
           create(peerId, cb)
         },
         (peerInfo: any, cb: any) => {
@@ -156,7 +155,6 @@ export function createNodeFromPrivateKey (callback: any) {
       }
     )
   } else {
-    // console.log("LOADING KEY FROM STORE");
     waterfall(
       [
         async (cb: (arg0: Error | null, arg1: any) => void) => {
@@ -180,13 +178,11 @@ export function createNodeFromPrivateKey (callback: any) {
         (privKey: string, cb: any) => {
           decryptionPhase(
             privKey,
-            myArgs.passphrase == undefined ? '' : myArgs.passphrase,
+            myArgs.passphrase ? myArgs.passphrase : '',
             cb
           )
         },
         (peerId: any, cb: any) => {
-          // console.log("Your peer id");
-          // console.log(peerId);
           create(peerId, cb)
         },
         (peerInfo: any, cb: any) => {
@@ -228,7 +224,6 @@ export function createNodeFromJSON (
 
 export function createNode (callback: (arg0: Error | null, arg1: any) => void) {
   let node: any
-  // console.log("CREATING FRESH KEY");
 
   if (typeof myArgs.keyname === 'function') {
     callback = myArgs.keyname
@@ -256,27 +251,14 @@ export function createNode (callback: (arg0: Error | null, arg1: any) => void) {
             // If passphrase is blank then the key is not encrypted
             const privKeyEnc = await exportKey(
               peerId,
-              myArgs.passphrase == undefined || myArgs.passphrase == null
-                ? ''
-                : myArgs.passphrase
+              myArgs.passphrase ? myArgs.passphrase : ''
             )
-            /* console.log("<========Putting key in db========>");
-            console.log("DB entry keyname:");
-            console.log(bs58.encode(dbKey.toBuffer()));
-            console.log("Cleartext private key");
-            console.log(Buffer.from(peerId.privKey.bytes).toString("base64"));
-            console.log("Encrypted private key (base 64)");
-            console.log(Buffer.from(privKeyEnc).toString("base64"));
-            console.log("Password: ");
-            console.log(myArgs.passphrase); */
             batch.put(dbKey, privKeyEnc)
             try {
               await batch.commit()
             } catch (error) {
-              console.log(error)
+              logger.error(error)
             }
-
-            // console.log("</=======Putting key in db========>");
           }
         }
         cb(null, peerId)
