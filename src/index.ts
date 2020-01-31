@@ -131,30 +131,53 @@ function askForKeyName(): any {
   }
 }
 
+async function keystoreHasKeys(): Promise<boolean> {
+  const queryResult = keystore.query({
+    prefix: "/privKeys"
+  });
+  const iterator = queryResult[Symbol.asyncIterator]();
+  if ((await iterator.next()).done) {
+    return false;
+  } else {
+    return true;
+  }
+}
 async function listExistingKeys(): Promise<void> {
   let list: string[] = [];
-  const queryResult = keystore.query({ prefix: "/privKeys" });
+  const queryResult = keystore.query({ prefix: "/privKeys", keysOnly: true });
   for await (const value of queryResult) {
     list.push(value.key.toString().replace("/privKeys/", ""));
   }
 
   console.log(list.sort());
+  askForCreateKey();
 }
 
-function askForCreateKey() {
+async function askForCreateKey() {
   if (myArgs.createKey == null) {
+    const showListOption: boolean = await keystoreHasKeys();
     rl.question(
-      "Select an option [1] Create new Key  [2] Load key from store [3] List existing keys ",
+      "Select an option [1] Create new Key" +
+        (showListOption
+          ? " [2] Load key from store [3] List existing keys "
+          : ""),
       option => {
         if (option !== "1" && option !== "2" && option !== "3") {
           logger.warn("Incorrect option");
           askForCreateKey();
         } else {
-          if (option === "3") {
-            listExistingKeys();
-          } else {
+          if (option === "1") {
             myArgs.createKey = option === "1";
             askForKeyName();
+          } else if (showListOption) {
+            if (option === "2") {
+              askForKeyName();
+            } else if (option === "3") {
+              listExistingKeys();
+            }
+          } else {
+            logger.warn("Incorrect option");
+            askForCreateKey();
           }
         }
       }
