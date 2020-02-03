@@ -101,10 +101,17 @@ export function createNodeFromPublicKey (
   )
 }
 
-async function decryptionPhase (privateKey: string, pass: string, cb: any) {
+async function keyLoadingPhase (
+  privateKey: string | undefined,
+  cb: any,
+  pass?: string
+) {
+  if (!privateKey) {
+    throw new Error('Key to load is not defined')
+  }
   let decryptedPrivKey: string | Buffer
 
-  if (pass !== '') {
+  if (pass) {
     decryptedPrivKey = decryptPrivateKey(privateKey, pass)
   } else {
     logger.info('Loading plaintext')
@@ -122,7 +129,6 @@ async function decryptionPhase (privateKey: string, pass: string, cb: any) {
     )
     createFromPrivKey(privKey.bytes, cb)
   } catch (error) {
-    logger.error('ERROR IN DECRYPTION PHASE')
     logger.error(error)
   }
 }
@@ -130,16 +136,12 @@ async function decryptionPhase (privateKey: string, pass: string, cb: any) {
 export function createNodeFromPrivateKey (callback: any) {
   let node: any
 
-  if (myArgs.privateKey !== '') {
+  if (myArgs.privateKey) {
     logger.info('Private key was provided via argument')
     waterfall(
       [
         (cb: (arg0: Error | null, arg1: any) => void) => {
-          decryptionPhase(
-            myArgs.privateKey,
-            myArgs.passphrase ? myArgs.passphrase : '',
-            cb
-          )
+          keyLoadingPhase(myArgs.privateKey, cb, myArgs.passphrase)
         },
         (peerId: any, cb: any) => {
           logger.info(peerId)
@@ -176,11 +178,7 @@ export function createNodeFromPrivateKey (callback: any) {
           }
         },
         (privKey: string, cb: any) => {
-          decryptionPhase(
-            privKey,
-            myArgs.passphrase ? myArgs.passphrase : '',
-            cb
-          )
+          keyLoadingPhase(privKey, cb, myArgs.passphrase)
         },
         (peerId: any, cb: any) => {
           create(peerId, cb)
@@ -248,8 +246,8 @@ export function createNode (callback: (arg0: Error | null, arg1: any) => void) {
             )
           } else {
             const batch = keystore.batch()
-            // If passphrase is blank then the key is not encrypted
-            const privKeyEnc = exportKey(peerId, myArgs.passphrase ? myArgs.passphrase : '')
+            // If passphrase is undefined or blank then the key is not encrypted
+            const privKeyEnc = exportKey(peerId, myArgs.passphrase)
             batch.put(dbKey, privKeyEnc)
             try {
               await batch.commit()

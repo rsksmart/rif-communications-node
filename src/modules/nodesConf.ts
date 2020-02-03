@@ -51,7 +51,6 @@ const myArgs = yargs
   .option('privateKey', {
     type: 'string',
     alias: 'private-key',
-    default: '',
     description:
       "The private key data, if passphrase is provided then it's treated as an encrypted" +
       ' key following pkcs8 standard'
