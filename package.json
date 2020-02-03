@@ -37,6 +37,7 @@
     "start": "tasegir run ./src/index.ts"
   },
   "dependencies": {
+    "@types/interface-datastore": "^0.8.0",
     "async": "^3.1.0",
     "datastore-level": "^0.14.0",
     "interface-datastore": "^0.8.0",
