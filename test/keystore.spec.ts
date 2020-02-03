@@ -31,7 +31,12 @@ describe('crypto tests', function () {
   // Password used to encrypt the private key
   const password = '123456789987654321'
 
+  const file = './test/testKeyFile.pem'
+
   before(async () => {
+    if (fs.existsSync(file)) {
+      fs.unlinkSync(file)
+    }
     // Create a privateKey object using the raw key
     const privKey = await libp2p.keys.supportedKeys.secp256k1.unmarshalSecp256k1PrivateKey(
       Buffer.from(privKeyBase64, 'base64')
@@ -55,6 +60,10 @@ describe('crypto tests', function () {
 
     batch.delete(dbKey)
     await batch.commit()
+
+    if (fs.existsSync(file)) {
+      fs.unlinkSync(file)
+    }
   })
 
   it('Decrypt key reading it from the keystore', async () => {
@@ -76,10 +85,10 @@ describe('crypto tests', function () {
     const res = await keystore.get(dbKey)
     const key = res.toString()
 
-    fs.writeFileSync('testKeyFile.pem', key)
+    fs.writeFileSync(file, key)
     // Use OpenSSL to decrypt the key
 
-    const command = 'openssl ec -in testFile.pem -passin ' + 'pass:' + password
+    const command = 'openssl ec -in ' + file + ' -passin ' + 'pass:' + password
 
     const ecFormat = cp.execSync(command, { encoding: 'utf-8' }) // the default is 'buffer'
 

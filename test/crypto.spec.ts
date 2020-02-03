@@ -35,8 +35,12 @@ describe('crypto tests', function () {
 
   // Password used to encrypt the private key
   const password = '123456789987654321'
+  const file = './test/testFile.pem'
 
   before(async () => {
+    if (fs.existsSync(file)) {
+      fs.unlinkSync(file)
+    }
     // Create a privateKey object using the raw key
     const privKey = await libp2p.keys.supportedKeys.secp256k1.unmarshalSecp256k1PrivateKey(
       Buffer.from(privKeyBase64, 'base64')
@@ -55,6 +59,10 @@ describe('crypto tests', function () {
 
   after(() => {
     peerId = null
+
+    if (fs.existsSync(file)) {
+      fs.unlinkSync(file)
+    }
   })
 
   it('export encrypted key using generated peerId', () => {
@@ -72,12 +80,12 @@ describe('crypto tests', function () {
     // Encrypt the key using pkcs8 format
     const pemKey = exportKey(peerId, password)
 
-    fs.writeFileSync('testFile.pem', pemKey)
+    fs.writeFileSync(file, pemKey)
     // Use OpenSSL to decrypt the key
     /* const command =
       "openssl ec -passin " + "pass:" + password + " <<< '" + pemKey + "'"; */
 
-    const command = 'openssl ec -in testFile.pem -passin ' + 'pass:' + password
+    const command = 'openssl ec -in ' + file + ' -passin ' + 'pass:' + password
 
     const ecFormat = cp.execSync(command, { encoding: 'utf-8' }) // the default is 'buffer'
 
