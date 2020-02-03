@@ -14,11 +14,26 @@ const keyEncoder: KeyEncoder = new KeyEncoder('secp256k1')
  * @return the key on success, null on failure.
  */
 function decryptPrivateKey (pem: string, password: string) {
-  const rval = pki.decryptPrivateKeyInfo(pki.encryptedPrivateKeyFromPem(pem), password)
+  if (password === '') {
+    throw new Error('Decryption password cannot be blank')
+  }
+  const rval = pki.decryptPrivateKeyInfo(
+    pki.encryptedPrivateKeyFromPem(pem),
+    password
+  )
 
-  if (typeof rval.value[2] === 'string') { throw new Error('Unexpected type string in the decrypted private key, expected ANS.1') }
+  if (typeof rval.value[2] === 'string') {
+    throw new Error(
+      'Unexpected type string in the decrypted private key, expected ANS.1'
+    )
+  }
 
-  if (typeof rval.value[2].value !== 'string') { throw new Error(`Inner part of the key should be a string, instead got ${typeof rval.value[2].value}`) }
+  if (typeof rval.value[2].value !== 'string') {
+    throw new Error(
+      `Inner part of the key should be a string, instead got ${typeof rval
+        .value[2].value}`
+    )
+  }
 
   const privKeyDer = new util.ByteStringBuffer(rval.value[2].value)
 
@@ -42,12 +57,7 @@ function createPrivateKeyInfo (peerId: any) {
   // PrivateKeyInfo
   return asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
     // version (0)
-    asn1.create(
-      asn1.Class.UNIVERSAL,
-      asn1.Type.INTEGER,
-      false,
-      '\0'
-    ),
+    asn1.create(asn1.Class.UNIVERSAL, asn1.Type.INTEGER, false, '\0'),
     // privateKeyAlgorithm
     asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
       asn1.create(
@@ -84,10 +94,10 @@ function createPrivateKeyInfo (peerId: any) {
  */
 function exportKey (
   peerId: any,
-  password: string,
+  password: string | undefined,
   format = 'pkcs-8'
 ): Buffer {
-  if (password !== '') {
+  if (password && password !== '') {
     // eslint-disable-line require-await
     let encrypted = null
 
@@ -106,11 +116,13 @@ function exportKey (
 
     return Buffer.from(pki.encryptedPrivateKeyToPem(encrypted))
   } else {
-    return Buffer.from(keyEncoder.encodePrivate(
-      peerId.privKey.marshal().toString('hex'),
-      'raw',
-      'pem'
-    ))
+    return Buffer.from(
+      keyEncoder.encodePrivate(
+        peerId.privKey.marshal().toString('hex'),
+        'raw',
+        'pem'
+      )
+    )
   }
 }
 

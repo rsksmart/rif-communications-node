@@ -85,7 +85,7 @@ function mainProcess () {
 }
 
 function askForPassword (): any {
-  if (myArgs.passphrase == null) {
+  if (!myArgs.passphrase) {
     rl.question(
       myArgs.createKey
         ? 'Please enter a password to encrypt your key (or empty string if no encryption is required)'
