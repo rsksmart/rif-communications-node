@@ -108,7 +108,7 @@ function askForPassword (): any {
 }
 
 function askForKeyName (): any {
-  if (myArgs.keyname == null) {
+  if (!myArgs.keyname) {
     const text: string = myArgs.createKey
       ? 'Please enter the name of the new key to create: '
       : 'Please enter the name of the key to load from the keystore: '
