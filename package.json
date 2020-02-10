@@ -50,7 +50,7 @@
     "libp2p-webrtc-direct": "0.3.1",
     "libp2p-webrtc-star": "0.16.1",
     "libp2p-websockets": "0.12.4",
-    "multiaddr": "6.1.1",
+    "multiaddr": "7.3.0",
     "multihash": "^0.1.0",
     "multihashing-async": "0.5.2",
     "node-forge": "^0.9.1",
