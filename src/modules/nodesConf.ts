@@ -18,9 +18,9 @@ const myArgs = yargs
     type: 'boolean',
     default: false
   })
-  .option('bootNodeAddr', {
+  .option('bootNodeAddresses', {
     type: 'string',
-    description: 'Address of a bootnode to connect to'
+    description: 'Addresses of bootnodes to connect to (comma-separated)'
   })
   .option('createKey', {
     type: 'boolean',

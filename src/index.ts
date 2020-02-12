@@ -16,6 +16,45 @@ const rl = createInterface({
   output: process.stdout
 })
 
+function connectToBootnode (node: any, bootNodeAddr: string) {
+  return new Promise((resolve, reject) => {
+    async.parallel(
+      [
+        (cb: () => void) =>
+          node.dial(new Multiaddr(bootNodeAddr), cb),
+        // Set up of the cons might take time
+        (cb: () => void) => setTimeout(cb, 300)
+      ],
+      (err: Error | null | undefined) => {
+        if (err) {
+          reject(err)
+        }
+        logger.info('Connection Successful')
+
+        if (myArgs.chatClient) {
+          const chatClient: CommandLineChat = new CommandLineChat(node)
+          chatClient.init()
+        }
+        resolve()
+      }
+    )
+  })
+}
+
+async function processBootnodes (node: any, bootNodeAddresses: Array<string>) {
+  let connected = false
+  for (const bootNodeAddr of bootNodeAddresses) {
+    if (!connected) {
+      try {
+        await connectToBootnode(node, bootNodeAddr)
+        connected = true
+      } catch (error) {
+        console.log('Error connecting to node', error)
+      }
+    }
+  }
+}
+
 function mainProcess () {
   async.waterfall(
     [
@@ -57,26 +96,9 @@ function mainProcess () {
               .toString('base64')
           )
 
-          if (myArgs.bootNodeAddr) {
-            async.parallel(
-              [
-                (cb: () => void) =>
-                  node.dial(new Multiaddr(myArgs.bootNodeAddr), cb),
-                // Set up of the cons might take time
-                (cb: () => void) => setTimeout(cb, 300)
-              ],
-              (err: Error | null | undefined) => {
-                if (err) {
-                  throw err
-                }
-                logger.info('Connection Successful')
-
-                if (myArgs.chatClient) {
-                  const chatClient: CommandLineChat = new CommandLineChat(node)
-                  chatClient.init()
-                }
-              }
-            )
+          if (myArgs.bootNodeAddresses) {
+            const bootNodeAddresses: Array<string> = myArgs.bootNodeAddresses.split(',')
+            processBootnodes(node, bootNodeAddresses)
           }
         }
       )
