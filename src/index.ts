@@ -49,7 +49,7 @@ async function processBootnodes (node: any, bootNodeAddresses: Array<string>) {
         await connectToBootnode(node, bootNodeAddr)
         connected = true
       } catch (error) {
-        console.log('Error connecting to node', error)
+        logger.info('Error connecting to node', error)
       }
     }
   }
