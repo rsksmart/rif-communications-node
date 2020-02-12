@@ -58,7 +58,7 @@ async function processBootnodes (node: any, bootNodeAddresses: Array<string>) {
     }
     count++
 
-    if (bootNodeAddresses.length < count) {
+    if (count < bootNodeAddresses.length) {
       bootNodeAddr = iterator.next().value
     }
   }
