@@ -43,15 +43,28 @@ function connectToBootnode (node: any, bootNodeAddr: string) {
 
 async function processBootnodes (node: any, bootNodeAddresses: Array<string>) {
   let connected = false
-  for (const bootNodeAddr of bootNodeAddresses) {
+  const iterator = bootNodeAddresses[Symbol.iterator]()
+  let count = 0
+  let bootNodeAddr = iterator.next().value
+
+  while (count < bootNodeAddresses.length && !connected) {
     if (!connected) {
       try {
         await connectToBootnode(node, bootNodeAddr)
         connected = true
       } catch (error) {
-        logger.info('Error connecting to node', error)
+        logger.info('Error connecting to node: ', error)
       }
     }
+    count++
+
+    if (bootNodeAddresses.length < count) {
+      bootNodeAddr = iterator.next().value
+    }
+  }
+
+  if (!connected) {
+    process.exit(-1)
   }
 }
 
