@@ -16,56 +16,41 @@ const rl = createInterface({
   output: process.stdout
 })
 
-function connectToBootnode (node: any, bootNodeAddr: string) {
-  return new Promise((resolve, reject) => {
-    async.parallel(
-      [
-        (cb: () => void) =>
-          node.dial(new Multiaddr(bootNodeAddr), cb),
-        // Set up of the cons might take time
-        (cb: () => void) => setTimeout(cb, 300)
-      ],
-      (err: Error | null | undefined) => {
-        if (err) {
-          reject(err)
-        }
-        logger.info('Connection Successful')
-
-        if (myArgs.chatClient) {
-          const chatClient: CommandLineChat = new CommandLineChat(node)
-          chatClient.init()
-        }
-        resolve()
-      }
-    )
+const promiseTimeout = function (ms: number, promise: Promise<any>) {
+  const timeout = new Promise((resolve, reject) => {
+    const id = setTimeout(() => {
+      clearTimeout(id)
+      reject(new Error(`Timed out in ${ms}ms`))
+    }, ms)
   })
+
+  return Promise.race([
+    promise,
+    timeout
+  ])
 }
 
-async function processBootnodes (node: any, bootNodeAddresses: Array<string>) {
-  let connected = false
-  const iterator = bootNodeAddresses[Symbol.iterator]()
-  let count = 0
-  let bootNodeAddr = iterator.next().value
-
-  while (count < bootNodeAddresses.length && !connected) {
-    if (!connected) {
-      try {
-        await connectToBootnode(node, bootNodeAddr)
-        connected = true
-      } catch (error) {
-        logger.info('Error connecting to node: ', error)
+function connectToBootnode (node: any, bootNodeAddr: (string | number)) {
+  logger.info(`Trying to connect to ${bootNodeAddr}`)
+  const dialPromise = new Promise<any>((resolve, reject) => {
+    node.dial(new Multiaddr(bootNodeAddr), (err: any, conn: any) => {
+      if (err) {
+        logger.warn(`Error connecting to ${bootNodeAddr}: `, err)
+        reject(err)
+      } else {
+        resolve(conn)
       }
-    }
-    count++
+    })
+  })
+  return promiseTimeout(300, dialPromise)
+}
 
-    if (count < bootNodeAddresses.length) {
-      bootNodeAddr = iterator.next().value
-    }
-  }
-
-  if (!connected) {
-    process.exit(-1)
-  }
+function processBootnodes (node: any, bootNodeAddresses: (string | number)[]) {
+  return bootNodeAddresses.reduce((accumulatorPromise: Promise<any>, nextMultiAddress: (string | number)) => {
+    return accumulatorPromise.catch(() => {
+      return connectToBootnode(node, nextMultiAddress)
+    })
+  }, Promise.reject(new Error()))
 }
 
 function mainProcess () {
@@ -110,8 +95,16 @@ function mainProcess () {
           )
 
           if (myArgs.bootNodeAddresses) {
-            const bootNodeAddresses: Array<string> = myArgs.bootNodeAddresses.split(',')
-            processBootnodes(node, bootNodeAddresses)
+            processBootnodes(node, myArgs.bootNodeAddresses).then(e => {
+              if (myArgs.chatClient) {
+                const chatClient: CommandLineChat = new CommandLineChat(node)
+                chatClient.init()
+              }
+              logger.info('Connection Successful')
+            }).catch(e => {
+              logger.info('Connection Fail')
+              process.exit(-1)
+            })
           }
         }
       )
@@ -195,9 +188,9 @@ async function askForCreateKey () {
   if (myArgs.createKey == null) {
     const showListOption: boolean = await keystoreHasKeys()
     rl.question(
-      'Select an option [1] Create new Key' +
+      'Select an option:\n [1] Create new Key' +
         (showListOption
-          ? ' [2] Load key from store [3] List existing keys '
+          ? '\n [2] Load key from store\n [3] List existing keys\n '
           : ''),
       option => {
         if (option !== '1' && option !== '2' && option !== '3') {
