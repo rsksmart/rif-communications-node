@@ -31,7 +31,7 @@ const multiaddrformats = [
  *
  * @returns boolean
  */
-function multiaddrValidator(multiaddr: string) {
+function multiaddrValidator (multiaddr: string) {
   return multiaddrformats.some((validator) => validator.matches(multiaddr))
 }
 
@@ -140,7 +140,7 @@ function mainProcess () {
           if (myArgs.bootNodeAddresses) {
             const bootnodeList: string[] = myArgs.bootNodeAddresses.map(bootnodeArg => bootnodeArg.toString())
             bootnodeList.forEach(bootnodeString => {
-              if(!multiaddrValidator(bootnodeString)){
+              if (!multiaddrValidator(bootnodeString)) {
                 logger.error(`Invalid boootnode address ${bootnodeString}`)
                 process.exit(-1)
               }
