@@ -53,7 +53,7 @@
     "mafmt": "^7.1.0",
     "multiaddr": "6.1.1",
     "multihash": "^0.1.0",
-    "multihashing-async": "0.5.2",
+    "multihashing-async": "0.8.1",
     "node-forge": "^0.9.1",
     "peer-id": "0.12.5",
     "peer-info": "0.15.1",
