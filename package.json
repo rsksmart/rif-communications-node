@@ -59,7 +59,7 @@
     "peer-info": "0.15.1",
     "winston": "^3.2.1",
     "wrtc": "^0.4.2",
-    "yargs": "^14.2.2"
+    "yargs": "^15.4.0"
   },
   "devDependencies": {
     "@types/async": "^3.0.5",
