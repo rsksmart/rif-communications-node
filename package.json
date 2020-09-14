@@ -54,7 +54,7 @@
     "multiaddr": "6.1.1",
     "multihash": "^0.1.0",
     "multihashing-async": "0.5.2",
-    "node-forge": "^0.9.1",
+    "node-forge": "^0.10.0",
     "peer-id": "0.12.5",
     "peer-info": "0.15.1",
     "winston": "^3.2.1",
