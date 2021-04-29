@@ -1,0 +1,44 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "09:00"
+    timezone: Europe/Prague
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: libp2p-websockets
+    versions:
+    - 0.15.0
+    - 0.15.1
+    - 0.15.2
+    - 0.15.5
+  - dependency-name: "@types/node"
+    versions:
+    - 14.14.22
+    - 14.14.25
+    - 14.14.28
+    - 14.14.31
+    - 14.14.32
+    - 14.14.34
+    - 14.14.35
+    - 14.14.37
+  - dependency-name: libp2p-webrtc-direct
+    versions:
+    - 0.5.0
+    - 0.5.1
+  - dependency-name: multihashing-async
+    versions:
+    - 2.0.1
+    - 2.1.0
+  - dependency-name: "@types/yargs"
+    versions:
+    - 15.0.12
+    - 16.0.0
+  - dependency-name: multiaddr
+    versions:
+    - 8.1.2
+  - dependency-name: elliptic
+    versions:
+    - 6.5.3
