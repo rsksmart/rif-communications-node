@@ -56,7 +56,7 @@
     "multihashing-async": "0.5.2",
     "node-forge": "^0.9.1",
     "peer-id": "0.12.5",
-    "peer-info": "0.15.1",
+    "peer-info": "0.17.5",
     "winston": "^3.2.1",
     "wrtc": "^0.4.2",
     "yargs": "^14.2.2"
