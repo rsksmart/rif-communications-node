@@ -68,7 +68,7 @@
     "@types/datastore-level": "^0.14.0",
     "@types/dirty-chai": "^2.0.2",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^13.5.0",
+    "@types/node": "^15.12.1",
     "@types/node-forge": "^0.9.1",
     "@types/yargs": "^15.0.2",
     "chai": "^4.2.0",
